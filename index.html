@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#080810">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>VAULT — Private Media</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+
+:root{
+  --bg:#080810;
+  --surface:#0f0f1a;
+  --card:#14141f;
+  --card2:#1a1a28;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.12);
+  --lime:#c6ff3f;
+  --cyan:#3fffd8;
+  --violet:#9747ff;
+  --red:#ff4757;
+  --amber:#ffb74d;
+  --text:#f2f2fc;
+  --sub:#8888aa;
+  --muted:#55556a;
+  --r:14px;
+  --r2:20px;
+  --header:60px;
+}
+
+html{height:100%;overscroll-behavior:none;}
+body{
+  font-family:'Cabinet Grotesk',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100%;overscroll-behavior:none;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ─── SCREENS ──────────────────────────────────────── */
+#s-auth,#s-vault,#s-lock{display:none;min-height:100svh;}
+
+/* ─── AUTH ──────────────────────────────────────────── */
+#s-auth{
+  align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 80% 80% at 15% 60%,rgba(151,71,255,.15) 0%,transparent 60%),
+             radial-gradient(ellipse 60% 60% at 85% 20%,rgba(63,255,216,.08) 0%,transparent 55%),
+             var(--bg);
+  padding:20px;
+}
+
+.auth-wrap
