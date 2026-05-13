@@ -2,53 +2,927 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#080810">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>VAULT — Private Media</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔒 Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root{
-  --bg:#080810;
-  --surface:#0f0f1a;
-  --card:#14141f;
-  --card2:#1a1a28;
-  --border:rgba(255,255,255,0.07);
-  --border2:rgba(255,255,255,0.12);
-  --lime:#c6ff3f;
-  --cyan:#3fffd8;
-  --violet:#9747ff;
-  --red:#ff4757;
-  --amber:#ffb74d;
-  --text:#f2f2fc;
-  --sub:#8888aa;
-  --muted:#55556a;
-  --r:14px;
-  --r2:20px;
-  --header:60px;
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --card: #16161f;
+  --border: #2a2a3a;
+  --accent: #e8ff3f;
+  --accent2: #3fffb0;
+  --text: #f0f0f8;
+  --muted: #6b6b88;
+  --red: #ff4f4f;
+  --radius: 12px;
 }
 
-html{height:100%;overscroll-behavior:none;}
-body{
-  font-family:'Cabinet Grotesk',sans-serif;
-  background:var(--bg);color:var(--text);
-  min-height:100%;overscroll-behavior:none;
-  -webkit-font-smoothing:antialiased;
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* ─── SCREENS ──────────────────────────────────────── */
-#s-auth,#s-vault,#s-lock{display:none;min-height:100svh;}
+#auth-screen, #vault-screen, #lock-screen { display: none; min-height: 100vh; }
 
-/* ─── AUTH ──────────────────────────────────────────── */
-#s-auth{
-  align-items:center;justify-content:center;
-  background:radial-gradient(ellipse 80% 80% at 15% 60%,rgba(151,71,255,.15) 0%,transparent 60%),
-             radial-gradient(ellipse 60% 60% at 85% 20%,rgba(63,255,216,.08) 0%,transparent 55%),
-             var(--bg);
-  padding:20px;
+/* AUTH */
+#auth-screen {
+  align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 20% 50%, #1a1a2e 0%, var(--bg) 60%);
+  position: relative; overflow: hidden;
 }
 
-.auth-wrap
+.auth-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 48px 40px; width: 100%;
+  max-width: 420px; box-shadow: 0 0 60px rgba(0,0,0,0.6);
+  position: relative; z-index: 1;
+}
+
+.vault-logo { text-align: center; margin-bottom: 32px; }
+.vault-logo .icon { font-size: 48px; display: block; margin-bottom: 8px; }
+.vault-logo h1 { font-size: 28px; font-weight: 800; letter-spacing: 6px; text-transform: uppercase; color: var(--accent); }
+.vault-logo p { color: var(--muted); font-size: 12px; font-family: 'Space Mono', monospace; letter-spacing: 2px; margin-top: 4px; }
+
+#auth-title { font-size: 18px; font-weight: 700; margin-bottom: 24px; color: var(--text); letter-spacing: 1px; }
+
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 11px; font-family: 'Space Mono', monospace; letter-spacing: 2px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; }
+.field input {
+  width: 100%; background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px; color: var(--text);
+  font-family: 'Space Mono', monospace; font-size: 14px; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,255,63,0.08); }
+.field input::placeholder { color: var(--muted); }
+
+.btn-primary {
+  width: 100%; background: var(--accent); color: #0a0a0f; border: none;
+  border-radius: var(--radius); padding: 16px; font-family: 'Syne', sans-serif;
+  font-size: 16px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; margin-top: 8px; transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(232,255,63,0.25); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.auth-links { text-align: center; margin-top: 20px; font-size: 13px; color: var(--muted); }
+.auth-links a { color: var(--accent); text-decoration: none; font-weight: 700; }
+
+.forgot-link { text-align: center; margin-top: 12px; }
+.forgot-link a { color: var(--muted); font-size: 12px; font-family: 'Space Mono', monospace; text-decoration: none; transition: color 0.2s; }
+.forgot-link a:hover { color: var(--accent2); }
+
+/* VAULT */
+#vault-screen { flex-direction: column; }
+
+.vault-header {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0 24px; height: 64px; display: flex; align-items: center;
+  justify-content: space-between; position: sticky; top: 0; z-index: 100;
+}
+.header-logo { display: flex; align-items: center; gap: 10px; }
+.header-logo span { font-size: 24px; }
+.header-logo h2 { font-size: 18px; font-weight: 800; letter-spacing: 4px; color: var(--accent); }
+
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.user-chip {
+  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+  padding: 6px 14px; font-size: 12px; font-family: 'Space Mono', monospace;
+  color: var(--muted); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.icon-btn {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 8px 14px; color: var(--text); cursor: pointer; font-size: 16px; transition: all 0.2s;
+}
+.icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.vault-main { flex: 1; padding: 32px 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+#drop-zone {
+  border: 2px dashed var(--border); border-radius: 20px; padding: 40px;
+  text-align: center; margin-bottom: 32px; cursor: pointer; transition: all 0.3s;
+  background: var(--surface); position: relative; overflow: hidden;
+}
+#drop-zone:hover, #drop-zone.drag-over { border-color: var(--accent); background: rgba(232,255,63,0.03); }
+#drop-zone.drag-over { transform: scale(1.01); }
+
+.drop-icon { font-size: 48px; margin-bottom: 12px; display: block; }
+.drop-text { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.drop-sub { font-size: 13px; color: var(--muted); font-family: 'Space Mono', monospace; }
+.drop-btn {
+  display: inline-block; margin-top: 16px; background: var(--accent); color: #0a0a0f;
+  border: none; border-radius: 10px; padding: 12px 28px; font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 14px; letter-spacing: 2px; cursor: pointer;
+  text-transform: uppercase; transition: all 0.2s;
+}
+.drop-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(232,255,63,0.2); }
+
+/* Size warning */
+.size-info {
+  display: inline-block; margin-top: 8px; font-size: 11px;
+  font-family: 'Space Mono', monospace; color: var(--muted);
+  background: rgba(232,255,63,0.06); border: 1px solid rgba(232,255,63,0.15);
+  border-radius: 6px; padding: 4px 10px;
+}
+
+.filter-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+.filter-tabs { display: flex; gap: 8px; }
+.filter-tab {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 8px 20px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+  color: var(--muted); cursor: pointer; transition: all 0.2s; letter-spacing: 1px;
+}
+.filter-tab:hover { border-color: var(--accent); color: var(--accent); }
+.filter-tab.active { background: var(--accent); color: #0a0a0f; border-color: var(--accent); }
+
+.count-badge {
+  font-family: 'Space Mono', monospace; font-size: 12px; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px;
+}
+
+#media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+  min-height: 200px;
+}
+
+.media-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; cursor: pointer; position: relative; aspect-ratio: 1;
+  animation: fadeUp 0.4s ease both;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.media-card:hover { transform: scale(1.03); border-color: var(--accent); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+.media-card img, .media-card video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.card-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 10px; opacity: 0; transition: opacity 0.2s;
+}
+.media-card:hover .card-overlay { opacity: 1; }
+.card-type { font-size: 18px; }
+.delete-btn {
+  background: rgba(255,79,79,0.9); border: none; border-radius: 6px;
+  width: 28px; height: 28px; color: white; cursor: pointer; font-size: 14px;
+  font-weight: 700; display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+}
+.delete-btn:hover { background: #ff2020; }
+.card-info {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+  padding: 20px 10px 10px; font-size: 11px; font-family: 'Space Mono', monospace;
+  color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Empty & Loading */
+#empty-state {
+  display: none; flex-direction: column; align-items: center;
+  justify-content: center; padding: 80px 20px; text-align: center;
+  gap: 12px; grid-column: 1/-1;
+}
+.empty-icon { font-size: 64px; opacity: 0.3; }
+.empty-text { font-size: 20px; font-weight: 700; color: var(--muted); }
+.empty-sub { font-size: 13px; font-family: 'Space Mono', monospace; color: var(--muted); opacity: 0.6; }
+
+/* Upload progress */
+#upload-bar {
+  display: none; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px;
+}
+.upload-header { display: flex; justify-content: space-between; font-size: 13px; font-family: 'Space Mono', monospace; margin-bottom: 10px; color: var(--text); }
+.upload-track { background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; }
+#upload-progress { background: linear-gradient(90deg, var(--accent), var(--accent2)); height: 100%; border-radius: 4px; transition: width 0.3s; width: 0%; }
+
+/* Viewer */
+#viewer {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+  z-index: 1000; align-items: center; justify-content: center; flex-direction: column;
+  padding: 20px; opacity: 0; transition: opacity 0.3s;
+}
+#viewer.open { opacity: 1; }
+.viewer-header {
+  position: absolute; top: 0; left: 0; right: 0; padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+}
+#viewer-title { font-size: 14px; font-family: 'Space Mono', monospace; color: var(--muted); }
+.viewer-close {
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px; padding: 8px 16px; color: white; cursor: pointer;
+  font-family: 'Space Mono', monospace; font-size: 12px; transition: all 0.2s;
+}
+.viewer-close:hover { background: rgba(255,255,255,0.2); }
+#viewer-content { max-width: 90vw; max-height: 85vh; display: flex; align-items: center; justify-content: center; }
+#viewer-content img { max-width: 100%; max-height: 85vh; border-radius: var(--radius); object-fit: contain; }
+#viewer-content video { max-width: 100%; max-height: 85vh; border-radius: var(--radius); }
+
+/* Lock Screen */
+#lock-screen {
+  align-items: center; justify-content: center;
+  background: var(--bg); background-image: radial-gradient(ellipse at center, rgba(232,255,63,0.04) 0%, transparent 70%);
+}
+.lock-box { text-align: center; max-width: 340px; width: 100%; padding: 20px; }
+.lock-icon { font-size: 72px; display: block; margin-bottom: 20px; animation: pulse 3s ease-in-out infinite; }
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+.lock-box h2 { font-size: 22px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 8px; }
+.lock-box p { font-size: 12px; font-family: 'Space Mono', monospace; color: var(--muted); margin-bottom: 32px; }
+.lock-box input {
+  width: 100%; background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; color: var(--text);
+  font-family: 'Space Mono', monospace; font-size: 24px; letter-spacing: 6px;
+  text-align: center; outline: none; margin-bottom: 16px; transition: border-color 0.2s;
+}
+.lock-box input:focus { border-color: var(--accent); }
+.lock-box input::placeholder { letter-spacing: 3px; font-size: 16px; color: var(--muted); }
+.lock-actions { display: flex; gap: 10px; }
+.btn-secondary {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px; color: var(--muted); font-family: 'Syne', sans-serif; font-weight: 700;
+  font-size: 13px; cursor: pointer; transition: all 0.2s; flex: 1;
+}
+.btn-secondary:hover { border-color: var(--red); color: var(--red); }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 30px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 24px; font-size: 14px;
+  font-family: 'Space Mono', monospace; transition: transform 0.3s;
+  z-index: 9999; white-space: nowrap; pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: var(--accent2); color: var(--accent2); }
+.toast.error { border-color: var(--red); color: var(--red); }
+.toast.info { border-color: var(--accent); color: var(--accent); }
+
+/* Loading dots */
+.loading-dots { display: flex; gap: 8px; align-items: center; justify-content: center; padding: 60px; grid-column: 1/-1; }
+.loading-dots span { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: dot 1.2s ease-in-out infinite; }
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; background: var(--accent2); }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* Settings Panel */
+#settings-panel {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+  align-items: flex-end; justify-content: center;
+}
+#settings-panel.open { display: flex; animation: slideUp 0.3s ease; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.settings-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px 20px 0 0; padding: 32px; width: 100%;
+  max-width: 480px; max-height: 80vh; overflow-y: auto;
+}
+.settings-box h3 { font-size: 18px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 24px; color: var(--accent); }
+.settings-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.settings-label { font-size: 14px; font-weight: 700; }
+.settings-sub { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; margin-top: 2px; }
+.settings-btn {
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 16px; color: var(--text); font-family: 'Space Mono', monospace;
+  font-size: 12px; cursor: pointer; transition: all 0.2s;
+}
+.settings-btn:hover { border-color: var(--accent); color: var(--accent); }
+.settings-btn.danger:hover { border-color: var(--red); color: var(--red); }
+
+@media (max-width: 600px) {
+  .auth-box { padding: 32px 24px; }
+  .vault-main { padding: 16px; }
+  #media-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .header-logo h2 { display: none; }
+  .user-chip { max-width: 120px; }
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+input[type="file"] { display: none; }
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="vault-logo">
+      <span class="icon">🔐</span>
+      <h1>VAULT</h1>
+      <p>PRIVATE MEDIA STORAGE</p>
+    </div>
+    <h3 id="auth-title">Enter Vault</h3>
+
+    <div id="login-fields">
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+    </div>
+
+    <div id="register-fields" style="display:none">
+      <div class="field">
+        <label>Confirm Password</label>
+        <input type="password" id="auth-confirm" placeholder="••••••••" autocomplete="new-password">
+      </div>
+    </div>
+
+    <button class="btn-primary" id="auth-submit">Unlock</button>
+
+    <div class="forgot-link" id="forgot-link">
+      <a href="#" id="forgot-link-btn">Forgot password?</a>
+    </div>
+    <div class="auth-links" id="auth-switch">
+      No account? <a href="#" id="switch-link-btn">Create Vault</a>
+    </div>
+  </div>
+</div>
+
+<!-- VAULT SCREEN -->
+<div id="vault-screen">
+  <header class="vault-header">
+    <div class="header-logo">
+      <span>🔒</span>
+      <h2>VAULT</h2>
+    </div>
+    <div class="header-actions">
+      <span class="user-chip" id="user-email"></span>
+      <button class="icon-btn" id="settings-btn" title="Settings">⚙️</button>
+      <button class="icon-btn" id="lock-btn" title="Lock vault">🔒</button>
+    </div>
+  </header>
+
+  <main class="vault-main">
+    <div id="drop-zone">
+      <span class="drop-icon">📁</span>
+      <div class="drop-text">Drop files here or click to upload</div>
+      <div class="drop-sub">Images &amp; videos · Stored privately in your vault</div>
+      <button class="drop-btn" id="add-btn">+ ADD TO VAULT</button>
+      <div><span class="size-info">⚠️ Max 700KB per file (Firestore limit)</span></div>
+    </div>
+    <input type="file" id="file-input" multiple accept="image/*,video/*">
+
+    <div id="upload-bar">
+      <div class="upload-header">
+        <span id="upload-file-name">Processing...</span>
+        <span id="upload-pct">0%</span>
+      </div>
+      <div class="upload-track">
+        <div id="upload-progress"></div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">ALL</button>
+        <button class="filter-tab" data-filter="images">📷 PHOTOS</button>
+        <button class="filter-tab" data-filter="videos">🎬 VIDEOS</button>
+      </div>
+      <span class="count-badge" id="count-badge">0 items</span>
+    </div>
+
+    <div id="media-grid">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>
+    <div id="empty-state">
+      <span class="empty-icon">🗄️</span>
+      <div class="empty-text">Vault is empty</div>
+      <div class="empty-sub">Upload photos &amp; videos to store them here</div>
+    </div>
+  </main>
+</div>
+
+<!-- LOCK SCREEN -->
+<div id="lock-screen">
+  <div class="lock-box">
+    <span class="lock-icon">🔐</span>
+    <h2>Vault Locked</h2>
+    <p>Enter your password to access vault</p>
+    <input type="password" id="lock-password" placeholder="••••••••">
+    <div class="lock-actions">
+      <button class="btn-secondary" id="lock-signout-btn">Sign Out</button>
+      <button class="btn-primary" id="unlock-btn">UNLOCK</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEWER -->
+<div id="viewer">
+  <div class="viewer-header">
+    <span id="viewer-title"></span>
+    <button class="viewer-close" id="viewer-close-btn">✕ CLOSE</button>
+  </div>
+  <div id="viewer-content"></div>
+</div>
+
+<!-- SETTINGS PANEL -->
+<div id="settings-panel">
+  <div class="settings-box">
+    <h3>⚙ Settings</h3>
+    <div class="settings-item">
+      <div>
+        <div class="settings-label">Lock Vault</div>
+        <div class="settings-sub">Requires password to reopen</div>
+      </div>
+      <button class="settings-btn" id="settings-lock-btn">🔒 Lock</button>
+    </div>
+    <div class="settings-item">
+      <div>
+        <div class="settings-label">Signed In As</div>
+        <div class="settings-sub" id="settings-email">—</div>
+      </div>
+    </div>
+    <div class="settings-item">
+      <div>
+        <div class="settings-label">Reset Password</div>
+        <div class="settings-sub">Send reset link to your email</div>
+      </div>
+      <button class="settings-btn" id="settings-reset-btn">Send Email</button>
+    </div>
+    <div class="settings-item">
+      <div>
+        <div class="settings-label">Auto-Lock</div>
+        <div class="settings-sub">Locks when app is hidden/minimized</div>
+      </div>
+      <span style="color:var(--accent2); font-size:12px; font-family:'Space Mono',monospace">ENABLED</span>
+    </div>
+    <div class="settings-item">
+      <div>
+        <div class="settings-label">Sign Out</div>
+        <div class="settings-sub">Removes session from this device</div>
+      </div>
+      <button class="settings-btn danger" id="settings-signout-btn">Sign Out</button>
+    </div>
+    <br>
+    <button class="btn-secondary" style="width:100%" id="settings-close-btn">Close</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- Firebase (Firestore only — no Storage) -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  sendPasswordResetEmail, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ── Firebase Config ────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyBM_CSlh0TIARF6A8YoHzlqJ64FFr0VY-Q",
+  authDomain: "hidedata-b8002.firebaseapp.com",
+  projectId: "hidedata-b8002",
+  messagingSenderId: "935184902355",
+  appId: "1:935184902355:web:0bd54653dd97cbe0ec4c26"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── State ──────────────────────────────────────
+let currentUser   = null;
+let mediaItems    = [];
+let currentFilter = 'all';
+let sessionLocked = false;
+let authMode      = 'login';
+let uploading     = false;
+
+// ── DOM refs ───────────────────────────────────
+const authScreen     = document.getElementById('auth-screen');
+const vaultScreen    = document.getElementById('vault-screen');
+const lockScreen     = document.getElementById('lock-screen');
+const authTitle      = document.getElementById('auth-title');
+const loginFields    = document.getElementById('login-fields');
+const registerFields = document.getElementById('register-fields');
+const authSubmit     = document.getElementById('auth-submit');
+const authSwitch     = document.getElementById('auth-switch');
+const forgotLink     = document.getElementById('forgot-link');
+const authEmail      = document.getElementById('auth-email');
+const authPassword   = document.getElementById('auth-password');
+const authConfirm    = document.getElementById('auth-confirm');
+const userEmailEl    = document.getElementById('user-email');
+const settingsEmailEl= document.getElementById('settings-email');
+const mediaGrid      = document.getElementById('media-grid');
+const emptyState     = document.getElementById('empty-state');
+const countBadge     = document.getElementById('count-badge');
+const fileInput      = document.getElementById('file-input');
+const uploadBar      = document.getElementById('upload-bar');
+const uploadFileName = document.getElementById('upload-file-name');
+const uploadPct      = document.getElementById('upload-pct');
+const uploadProgress = document.getElementById('upload-progress');
+const viewer         = document.getElementById('viewer');
+const viewerTitle    = document.getElementById('viewer-title');
+const viewerContent  = document.getElementById('viewer-content');
+const lockPassword   = document.getElementById('lock-password');
+const settingsPanel  = document.getElementById('settings-panel');
+const toast          = document.getElementById('toast');
+
+// ── Screen helpers ─────────────────────────────
+function showAuth(mode) {
+  authScreen.style.display  = 'flex';
+  vaultScreen.style.display = 'none';
+  lockScreen.style.display  = 'none';
+  setAuthMode(mode || 'login');
+}
+
+function showVault() {
+  authScreen.style.display  = 'none';
+  vaultScreen.style.display = 'flex';
+  lockScreen.style.display  = 'none';
+  userEmailEl.textContent   = currentUser?.email || '';
+  settingsEmailEl.textContent = currentUser?.email || '';
+}
+
+function showLock() {
+  authScreen.style.display  = 'none';
+  vaultScreen.style.display = 'none';
+  lockScreen.style.display  = 'flex';
+  lockPassword.value        = '';
+  sessionLocked             = true;
+}
+
+// ── Auth modes ─────────────────────────────────
+function setAuthMode(mode) {
+  authMode = mode;
+  if (mode === 'login') {
+    authTitle.textContent = 'Enter Vault';
+    loginFields.style.display    = 'block';
+    registerFields.style.display = 'none';
+    authSubmit.textContent  = 'Unlock';
+    forgotLink.style.display= 'block';
+    authSwitch.innerHTML = `No account? <a href="#" id="switch-link-btn">Create Vault</a>`;
+    document.getElementById('switch-link-btn').onclick = e => { e.preventDefault(); setAuthMode('register'); };
+  } else if (mode === 'register') {
+    authTitle.textContent = 'Create Vault';
+    loginFields.style.display    = 'block';
+    registerFields.style.display = 'block';
+    authSubmit.textContent  = 'Create Vault';
+    forgotLink.style.display= 'none';
+    authSwitch.innerHTML = `Have an account? <a href="#" id="switch-link-btn">Login</a>`;
+    document.getElementById('switch-link-btn').onclick = e => { e.preventDefault(); setAuthMode('login'); };
+  } else if (mode === 'forgot') {
+    authTitle.textContent = 'Reset Password';
+    loginFields.style.display    = 'block';
+    registerFields.style.display = 'none';
+    authSubmit.textContent  = 'Send Reset Email';
+    forgotLink.style.display= 'none';
+    authSwitch.innerHTML = `<a href="#" id="switch-link-btn">← Back to Login</a>`;
+    document.getElementById('switch-link-btn').onclick = e => { e.preventDefault(); setAuthMode('login'); };
+  }
+}
+
+// ── Auth submit ────────────────────────────────
+authSubmit.onclick = async () => {
+  if (authMode === 'login')    await doLogin();
+  else if (authMode === 'register') await doRegister();
+  else if (authMode === 'forgot')   await doForgotPassword();
+};
+
+authPassword.addEventListener('keydown', e => { if (e.key === 'Enter') authSubmit.click(); });
+if (authConfirm) authConfirm.addEventListener('keydown', e => { if (e.key === 'Enter') authSubmit.click(); });
+lockPassword.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('unlock-btn').click(); });
+document.getElementById('forgot-link-btn').onclick = e => { e.preventDefault(); setAuthMode('forgot'); };
+
+async function doLogin() {
+  const email = authEmail.value.trim();
+  const pass  = authPassword.value;
+  if (!email || !pass) return showMsg('Fill in all fields', 'error');
+  authSubmit.disabled = true;
+  try {
+    showMsg('Unlocking...', 'info');
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch (e) {
+    showMsg(getFriendlyError(e.code), 'error');
+  } finally {
+    authSubmit.disabled = false;
+  }
+}
+
+async function doRegister() {
+  const email   = authEmail.value.trim();
+  const pass    = authPassword.value;
+  const confirm = authConfirm.value;
+  if (!email || !pass)         return showMsg('Fill in all fields', 'error');
+  if (pass !== confirm)        return showMsg('Passwords do not match', 'error');
+  if (pass.length < 6)         return showMsg('Password must be 6+ characters', 'error');
+  authSubmit.disabled = true;
+  try {
+    showMsg('Creating vault...', 'info');
+    await createUserWithEmailAndPassword(auth, email, pass);
+  } catch (e) {
+    showMsg(getFriendlyError(e.code), 'error');
+  } finally {
+    authSubmit.disabled = false;
+  }
+}
+
+async function doForgotPassword() {
+  const email = authEmail.value.trim();
+  if (!email) return showMsg('Enter your email address', 'error');
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showMsg('Reset email sent! Check your inbox.', 'success');
+  } catch (e) { showMsg(getFriendlyError(e.code), 'error'); }
+}
+
+// ── Unlock / Logout ────────────────────────────
+document.getElementById('unlock-btn').onclick = async () => {
+  const pass = lockPassword.value;
+  if (!pass) return showMsg('Enter your password', 'error');
+  try {
+    await signInWithEmailAndPassword(auth, currentUser.email, pass);
+    sessionLocked = false;
+    showVault();
+  } catch (e) { showMsg('Wrong password', 'error'); }
+};
+
+async function doLogout() {
+  if (!confirm('Sign out of vault?')) return;
+  await signOut(auth);
+}
+
+document.getElementById('lock-signout-btn').onclick = doLogout;
+document.getElementById('lock-btn').onclick         = showLock;
+document.getElementById('settings-btn').onclick     = () => settingsPanel.classList.add('open');
+document.getElementById('settings-lock-btn').onclick= () => { settingsPanel.classList.remove('open'); showLock(); };
+document.getElementById('settings-signout-btn').onclick = doLogout;
+document.getElementById('settings-close-btn').onclick   = () => settingsPanel.classList.remove('open');
+settingsPanel.onclick = e => { if (e.target === settingsPanel) settingsPanel.classList.remove('open'); };
+
+document.getElementById('settings-reset-btn').onclick = async () => {
+  const email = currentUser?.email;
+  if (!email) return;
+  settingsPanel.classList.remove('open');
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showMsg('Reset email sent!', 'success');
+  } catch (e) { showMsg('Failed to send reset email', 'error'); }
+};
+
+// ── File Upload (base64 → Firestore) ──────────
+const MAX_SIZE = 700 * 1024; // 700 KB — Firestore doc limit is ~1MB, base64 adds ~33%
+
+function triggerUpload() { if (!uploading) fileInput.click(); }
+
+document.getElementById('drop-zone').onclick = e => { if (e.target !== document.getElementById('add-btn')) triggerUpload(); };
+document.getElementById('add-btn').onclick   = e => { e.stopPropagation(); triggerUpload(); };
+
+fileInput.addEventListener('change', async e => {
+  const files = Array.from(e.target.files);
+  for (const file of files) await uploadFile(file);
+  e.target.value = '';
+});
+
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', ()  => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('drag-over');
+  Array.from(e.dataTransfer.files).forEach(uploadFile);
+});
+
+// Convert File → base64 data URL, reporting progress
+function fileToBase64(file, onProgress) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onprogress = e => { if (e.lengthComputable && onProgress) onProgress(Math.round(e.loaded / e.total * 80)); };
+    reader.onload    = () => resolve(reader.result);
+    reader.onerror   = () => reject(new Error('File read failed'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadFile(file) {
+  const isImage = file.type.startsWith('image/');
+  const isVideo = file.type.startsWith('video/');
+  if (!isImage && !isVideo) return showMsg('Only images & videos allowed', 'error');
+
+  // Size check — Firestore docs max ~1MB; base64 bloats by ~33%
+  if (file.size > MAX_SIZE) {
+    showMsg(`File too large (max 700 KB). "${file.name}" is ${(file.size/1024).toFixed(0)} KB`, 'error');
+    return;
+  }
+
+  uploading = true;
+  uploadBar.style.display    = 'block';
+  uploadFileName.textContent = file.name;
+  uploadProgress.style.width = '0%';
+  uploadPct.textContent      = '0%';
+
+  const setProgress = pct => {
+    uploadProgress.style.width = pct + '%';
+    uploadPct.textContent      = pct + '%';
+  };
+
+  try {
+    // 1. Read file as base64
+    const dataURL = await fileToBase64(file, setProgress);
+    setProgress(85);
+
+    // 2. Save to Firestore
+    await addDoc(collection(db, 'vault'), {
+      uid      : currentUser.uid,
+      name     : file.name,
+      type     : isImage ? 'image' : 'video',
+      dataURL,                          // base64 stored directly
+      size     : file.size,
+      createdAt: new Date()
+    });
+
+    setProgress(100);
+    showMsg(`${file.name} saved to vault ✓`, 'success');
+    setTimeout(() => { uploadBar.style.display = 'none'; }, 800);
+    loadMedia();
+  } catch (err) {
+    console.error('Upload error:', err);
+    if (err.code === 'resource-exhausted') {
+      showMsg('File too large for Firestore — please use a smaller file', 'error');
+    } else {
+      showMsg('Upload failed: ' + err.message, 'error');
+    }
+    uploadBar.style.display = 'none';
+  } finally {
+    uploading = false;
+  }
+}
+
+// ── Load Media ─────────────────────────────────
+async function loadMedia(filter) {
+  if (filter !== undefined) currentFilter = filter;
+  if (!currentUser) return;
+
+  mediaGrid.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
+  emptyState.style.display = 'none';
+
+  try {
+    const q        = query(collection(db, 'vault'), where('uid', '==', currentUser.uid));
+    const snapshot = await getDocs(q);
+    mediaItems = [];
+    snapshot.forEach(d => mediaItems.push({ id: d.id, ...d.data() }));
+
+    // Sort newest first
+    mediaItems.sort((a, b) => {
+      const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : new Date(a.createdAt).getTime();
+      const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : new Date(b.createdAt).getTime();
+      return tb - ta;
+    });
+
+    let filtered = mediaItems;
+    if (currentFilter === 'images') filtered = mediaItems.filter(m => m.type === 'image');
+    if (currentFilter === 'videos') filtered = mediaItems.filter(m => m.type === 'video');
+
+    countBadge.textContent = filtered.length + ' item' + (filtered.length !== 1 ? 's' : '');
+
+    if (!filtered.length) {
+      mediaGrid.innerHTML = '';
+      emptyState.style.display = 'flex';
+      return;
+    }
+
+    emptyState.style.display = 'none';
+    mediaGrid.innerHTML = filtered.map((item, i) => `
+      <div class="media-card" style="animation-delay:${i * 0.05}s" data-id="${item.id}">
+        ${item.type === 'image'
+          ? `<img src="${item.dataURL}" alt="${escHtml(item.name)}" loading="lazy">`
+          : `<video src="${item.dataURL}" muted preload="metadata"></video>`
+        }
+        <div class="card-overlay">
+          <span class="card-type">${item.type === 'video' ? '▶' : '🖼'}</span>
+          <button class="delete-btn" data-id="${item.id}">✕</button>
+        </div>
+        <div class="card-info">${escHtml(item.name.length > 22 ? item.name.substring(0, 22) + '…' : item.name)}</div>
+      </div>
+    `).join('');
+
+    mediaGrid.querySelectorAll('.media-card').forEach(card => {
+      card.addEventListener('click', () => openViewer(card.dataset.id));
+    });
+    mediaGrid.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', e => { e.stopPropagation(); deleteItem(btn.dataset.id); });
+    });
+
+  } catch (e) {
+    console.error('Load error:', e);
+    mediaGrid.innerHTML = `<p style="color:var(--red);text-align:center;grid-column:1/-1;padding:40px">
+      Error loading media.<br><small style="font-family:monospace;opacity:.6">${e.message}</small>
+    </p>`;
+  }
+}
+
+async function deleteItem(id) {
+  if (!confirm('Delete this from vault forever?')) return;
+  try {
+    await deleteDoc(doc(db, 'vault', id));
+    showMsg('Deleted from vault', 'success');
+    loadMedia();
+  } catch (e) { showMsg('Delete failed: ' + e.message, 'error'); }
+}
+
+// ── Filter tabs ────────────────────────────────
+document.querySelectorAll('.filter-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    loadMedia(tab.dataset.filter);
+  });
+});
+
+// ── Viewer ─────────────────────────────────────
+function openViewer(id) {
+  const item = mediaItems.find(m => m.id === id);
+  if (!item) return;
+  viewerTitle.textContent = item.name;
+  viewerContent.innerHTML = item.type === 'image'
+    ? `<img src="${item.dataURL}" alt="${escHtml(item.name)}">`
+    : `<video src="${item.dataURL}" controls autoplay></video>`;
+  viewer.style.display = 'flex';
+  setTimeout(() => viewer.classList.add('open'), 10);
+}
+
+function closeViewer() {
+  viewer.classList.remove('open');
+  setTimeout(() => { viewer.style.display = 'none'; viewerContent.innerHTML = ''; }, 300);
+}
+
+document.getElementById('viewer-close-btn').onclick = closeViewer;
+viewer.addEventListener('click', e => { if (e.target === viewer) closeViewer(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeViewer(); });
+
+// ── Auto-lock ──────────────────────────────────
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && currentUser && !sessionLocked) showLock();
+});
+
+// ── Auth state ─────────────────────────────────
+onAuthStateChanged(auth, user => {
+  currentUser = user;
+  if (user) { showVault(); loadMedia(); }
+  else       { showAuth('login'); }
+});
+
+// ── Helpers ────────────────────────────────────
+function showMsg(msg, type) {
+  toast.textContent = msg;
+  toast.className   = 'toast show ' + type;
+  setTimeout(() => { toast.className = 'toast'; }, 3500);
+}
+
+function getFriendlyError(code) {
+  const map = {
+    'auth/user-not-found'      : 'No account found with this email',
+    'auth/wrong-password'      : 'Incorrect password',
+    'auth/email-already-in-use': 'Email already registered',
+    'auth/weak-password'       : 'Password too weak (min 6 chars)',
+    'auth/invalid-email'       : 'Invalid email address',
+    'auth/too-many-requests'   : 'Too many attempts. Try later.',
+    'auth/network-request-failed': 'Network error. Check connection.',
+    'auth/invalid-credential'  : 'Invalid email or password',
+  };
+  return map[code] || 'Something went wrong. Try again.';
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Init
+showAuth('login');
+</script>
+</body>
+</html>
