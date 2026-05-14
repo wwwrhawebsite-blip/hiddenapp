@@ -4,162 +4,177 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🔐 Secret Vault</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bricolage+Grotesque:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-<!-- Firebase Auth + Firestore ONLY — no Storage needed -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#080810;--sur:#10101c;--card:#14141f;--bor:#252535;--bor2:#303048;
-  --acc:#c8ff00;--acc2:#00ffa3;--acc3:#7b5cff;
-  --txt:#eeeef8;--mut:#5c5c7a;--red:#ff4444;--r:13px;
+  --bg:#f4f3ef;--sur:#ffffff;--card:#faf9f7;--bor:#e2dfd8;--bor2:#ccc9c0;
+  --acc:#1a1a2e;--acc2:#2563eb;--acc3:#7c3aed;--green:#16a34a;--red:#dc2626;
+  --txt:#1a1917;--mut:#8a8680;--r:14px;
+  --shadow:0 2px 12px rgba(0,0,0,.07),0 1px 3px rgba(0,0,0,.05);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.12),0 4px 12px rgba(0,0,0,.06);
 }
-html,body{height:100%;font-family:'Syne',sans-serif;background:var(--bg);color:var(--txt);overflow-x:hidden}
+html,body{height:100%;font-family:'Bricolage Grotesque',sans-serif;background:var(--bg);color:var(--txt);overflow-x:hidden}
 .screen{display:none;min-height:100vh;width:100%}
 .screen.active{display:flex}
 
-/* AUTH */
+/* ── AUTH ── */
 #s-auth{align-items:center;justify-content:center;
-  background:radial-gradient(ellipse 700px 500px at 15% 80%,rgba(123,92,255,.07),transparent 60%),
-             radial-gradient(ellipse 500px 400px at 85% 10%,rgba(200,255,0,.05),transparent 60%),var(--bg)}
-.acard{width:100%;max-width:400px;padding:44px 38px 38px;background:var(--sur);border:1px solid var(--bor);border-radius:22px;box-shadow:0 30px 70px rgba(0,0,0,.6);margin:16px}
-.brand{text-align:center;margin-bottom:32px}
-.bicon{width:68px;height:68px;background:linear-gradient(135deg,#1a1a2e,#0f0f1e);border:2px solid var(--bor2);border-radius:18px;display:inline-flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:14px}
-.brand h1{font-size:24px;font-weight:800;letter-spacing:8px;text-transform:uppercase;color:var(--acc);margin-bottom:3px}
-.brand p{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--mut);text-transform:uppercase}
-.atitle{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:22px}
-.field{margin-bottom:13px}
-.field label{display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
-.field input{width:100%;background:var(--card);border:1.5px solid var(--bor);border-radius:10px;padding:13px 15px;font-family:'Space Mono',monospace;font-size:14px;color:var(--txt);outline:none;transition:border-color .2s,box-shadow .2s}
-.field input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(200,255,0,.07)}
-.field input::placeholder{color:var(--mut);font-size:12px}
-.btn{width:100%;padding:14px;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-top:5px}
-.btn-acc{background:var(--acc);color:#080810}
-.btn-acc:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(200,255,0,.24)}
+  background:
+    radial-gradient(ellipse 600px 400px at 10% 90%,rgba(37,99,235,.06),transparent),
+    radial-gradient(ellipse 500px 400px at 90% 10%,rgba(124,58,237,.05),transparent),
+    var(--bg)}
+.acard{width:100%;max-width:420px;padding:44px 40px 36px;background:var(--sur);border:1px solid var(--bor);border-radius:24px;box-shadow:var(--shadow-lg);margin:16px}
+.brand{text-align:center;margin-bottom:36px}
+.bicon{width:72px;height:72px;background:linear-gradient(135deg,var(--acc),var(--acc2));border-radius:20px;display:inline-flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:16px;box-shadow:0 8px 24px rgba(37,99,235,.25)}
+.brand h1{font-size:26px;font-weight:800;letter-spacing:6px;text-transform:uppercase;color:var(--acc);margin-bottom:4px}
+.brand p{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--mut);text-transform:uppercase}
+.atitle{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:20px}
+.field{margin-bottom:14px}
+.field label{display:block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.field input{width:100%;background:var(--card);border:1.5px solid var(--bor);border-radius:10px;padding:13px 15px;font-family:'DM Mono',monospace;font-size:14px;color:var(--txt);outline:none;transition:border-color .2s,box-shadow .2s}
+.field input:focus{border-color:var(--acc2);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.field input::placeholder{color:var(--mut)}
+.btn{width:100%;padding:14px;border:none;border-radius:11px;font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .18s;margin-top:4px}
+.btn-acc{background:var(--acc);color:#fff}
+.btn-acc:hover{background:#111128;transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,26,46,.3)}
 .btn-acc:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .btn-ghost{background:var(--card);border:1.5px solid var(--bor);color:var(--txt)}
-.btn-ghost:hover{border-color:var(--acc);color:var(--acc)}
-.btn-danger{background:rgba(255,68,68,.08);border:1.5px solid rgba(255,68,68,.3);color:var(--red)}
-.btn-danger:hover{background:rgba(255,68,68,.15);border-color:var(--red)}
-.afooter{text-align:center;margin-top:18px;font-size:13px;color:var(--mut)}
-.afooter a{color:var(--acc);text-decoration:none;font-weight:700}
-.lsm{display:block;text-align:center;margin-top:12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--mut);cursor:pointer;transition:color .2s}
+.btn-ghost:hover{border-color:var(--acc2);color:var(--acc2)}
+.btn-danger{background:rgba(220,38,38,.06);border:1.5px solid rgba(220,38,38,.25);color:var(--red)}
+.btn-danger:hover{background:rgba(220,38,38,.1);border-color:var(--red)}
+.afooter{text-align:center;margin-top:16px;font-size:13px;color:var(--mut)}
+.afooter a{color:var(--acc2);text-decoration:none;font-weight:700}
+.lsm{display:block;text-align:center;margin-top:11px;font-family:'DM Mono',monospace;font-size:11px;color:var(--mut);cursor:pointer;transition:color .2s}
 .lsm:hover{color:var(--acc2)}
 
-/* VAULT */
+/* ── VAULT ── */
 #s-vault{flex-direction:column}
-.vhdr{position:sticky;top:0;z-index:200;background:rgba(8,8,16,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--bor);height:58px;padding:0 18px;display:flex;align-items:center;justify-content:space-between}
-.hl{display:flex;align-items:center;gap:9px}
-.htitle{font-size:15px;font-weight:800;letter-spacing:5px;text-transform:uppercase;color:var(--acc)}
-.hr{display:flex;align-items:center;gap:7px}
-.chip{background:var(--card);border:1px solid var(--bor);border-radius:20px;padding:5px 11px;font-family:'Space Mono',monospace;font-size:10px;color:var(--mut);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hbtn{background:var(--card);border:1px solid var(--bor);border-radius:8px;padding:6px 11px;font-size:15px;cursor:pointer;color:var(--txt);transition:all .2s;line-height:1}
-.hbtn:hover{border-color:var(--acc)}
-.vbody{flex:1;padding:22px 18px 40px;max-width:1100px;margin:0 auto;width:100%}
+.vhdr{position:sticky;top:0;z-index:200;background:rgba(244,243,239,.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--bor);height:60px;padding:0 22px;display:flex;align-items:center;justify-content:space-between}
+.hl{display:flex;align-items:center;gap:10px}
+.htitle{font-size:16px;font-weight:800;letter-spacing:5px;text-transform:uppercase;color:var(--acc)}
+.hr{display:flex;align-items:center;gap:8px}
+.chip{background:var(--card);border:1px solid var(--bor);border-radius:20px;padding:5px 12px;font-family:'DM Mono',monospace;font-size:10px;color:var(--mut);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbtn{background:var(--sur);border:1px solid var(--bor);border-radius:9px;padding:7px 12px;font-size:16px;cursor:pointer;color:var(--txt);transition:all .18s;line-height:1}
+.hbtn:hover{border-color:var(--acc2);color:var(--acc2)}
+.vbody{flex:1;padding:24px 22px 50px;max-width:1200px;margin:0 auto;width:100%}
 
 /* Drop Zone */
-.dz{background:var(--sur);border:2px dashed var(--bor2);border-radius:18px;padding:34px 20px;text-align:center;cursor:pointer;transition:all .25s;margin-bottom:20px}
-.dz:hover,.dz.over{border-color:var(--acc);background:rgba(200,255,0,.02)}
-.dzi{font-size:38px;margin-bottom:9px}
-.dzt{font-size:16px;font-weight:700;margin-bottom:4px}
-.dzs{font-family:'Space Mono',monospace;font-size:11px;color:var(--mut);margin-bottom:16px}
-.dzbtn{display:inline-block;background:var(--acc);color:#080810;border:none;border-radius:9px;padding:10px 24px;font-family:'Syne',sans-serif;font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s}
-.dzbtn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(200,255,0,.2)}
+.dz{background:var(--sur);border:2.5px dashed var(--bor2);border-radius:20px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:22px}
+.dz:hover,.dz.over{border-color:var(--acc2);background:rgba(37,99,235,.02)}
+.dzi{font-size:40px;margin-bottom:10px}
+.dzt{font-size:17px;font-weight:700;margin-bottom:5px;color:var(--acc)}
+.dzs{font-family:'DM Mono',monospace;font-size:11px;color:var(--mut);margin-bottom:18px}
+.dzbtn{display:inline-block;background:var(--acc);color:#fff;border:none;border-radius:10px;padding:11px 26px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .18s}
+.dzbtn:hover{background:#111128;transform:translateY(-1px)}
+
+/* Storage info bar */
+.storage-bar{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.sb-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--mut)}
+.sb-track{flex:1;min-width:120px;height:7px;background:var(--bor);border-radius:4px;overflow:hidden}
+.sb-fill{height:100%;background:linear-gradient(90deg,var(--acc2),var(--acc3));border-radius:4px;transition:width .4s}
+.sb-size{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);white-space:nowrap}
 
 /* Upload Progress */
-#upbox{display:none;background:var(--sur);border:1px solid var(--bor2);border-radius:var(--r);padding:18px;margin-bottom:18px}
-.up-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.up-name{font-family:'Space Mono',monospace;font-size:12px;color:var(--txt);max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.up-pct{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--acc)}
-.up-status{font-family:'Space Mono',monospace;font-size:10px;color:var(--mut);margin-bottom:10px}
-.up-track{height:8px;background:var(--bor);border-radius:4px;overflow:hidden;margin-bottom:8px}
-#upbar{height:100%;width:0%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:4px;transition:width .25s}
-.up-queue{font-family:'Space Mono',monospace;font-size:10px;color:var(--mut)}
+#upbox{display:none;background:var(--sur);border:1px solid var(--bor2);border-radius:var(--r);padding:18px;margin-bottom:18px;box-shadow:var(--shadow)}
+.up-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.up-name{font-family:'DM Mono',monospace;font-size:12px;color:var(--txt);max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.up-pct{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--acc2)}
+.up-status{font-family:'DM Mono',monospace;font-size:10px;color:var(--mut);margin-bottom:10px}
+.up-track{height:7px;background:var(--bor);border-radius:4px;overflow:hidden;margin-bottom:8px}
+#upbar{height:100%;width:0%;background:linear-gradient(90deg,var(--acc2),var(--acc3));border-radius:4px;transition:width .2s}
+.up-queue{font-family:'DM Mono',monospace;font-size:10px;color:var(--mut)}
 
 /* Stats */
-.stats{display:flex;gap:9px;margin-bottom:18px;flex-wrap:wrap}
-.sc{flex:1;min-width:80px;background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:12px 14px}
-.snum{font-size:24px;font-weight:800;color:var(--acc);line-height:1;margin-bottom:3px}
-.slbl{font-family:'Space Mono',monospace;font-size:9px;color:var(--mut);letter-spacing:1px;text-transform:uppercase}
+.stats{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.sc{flex:1;min-width:80px;background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow)}
+.snum{font-size:26px;font-weight:800;color:var(--acc);line-height:1;margin-bottom:4px}
+.slbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--mut);letter-spacing:1.5px;text-transform:uppercase}
 
 /* Filters */
-.frow{display:flex;gap:7px;margin-bottom:18px;flex-wrap:wrap}
-.ftab{background:var(--sur);border:1.5px solid var(--bor);border-radius:8px;padding:7px 16px;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--mut);cursor:pointer;transition:all .2s}
-.ftab:hover{border-color:var(--acc);color:var(--acc)}
-.ftab.on{background:var(--acc);border-color:var(--acc);color:#080810}
+.frow{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.ftab{background:var(--sur);border:1.5px solid var(--bor);border-radius:9px;padding:8px 18px;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--mut);cursor:pointer;transition:all .18s;box-shadow:var(--shadow)}
+.ftab:hover{border-color:var(--acc2);color:var(--acc2)}
+.ftab.on{background:var(--acc);border-color:var(--acc);color:#fff;box-shadow:0 4px 14px rgba(26,26,46,.2)}
 
 /* Grid */
-#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px}
-.mc{background:var(--card);border:1.5px solid var(--bor);border-radius:var(--r);aspect-ratio:1/1;overflow:hidden;position:relative;cursor:pointer;animation:popIn .35s ease both;transition:transform .2s,border-color .2s,box-shadow .2s}
-.mc:hover{transform:scale(1.04);border-color:var(--acc);box-shadow:0 8px 28px rgba(0,0,0,.5);z-index:2}
-@keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+.mc{background:var(--sur);border:1.5px solid var(--bor);border-radius:var(--r);aspect-ratio:1/1;overflow:hidden;position:relative;cursor:pointer;animation:popIn .3s ease both;transition:transform .2s,border-color .2s,box-shadow .2s;box-shadow:var(--shadow)}
+.mc:hover{transform:scale(1.03);border-color:var(--acc2);box-shadow:var(--shadow-lg);z-index:2}
+@keyframes popIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
 .mc img,.mc video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
-.mov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 55%);opacity:0;transition:opacity .2s;display:flex;flex-direction:column;justify-content:space-between;padding:7px}
+.mov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6) 0%,transparent 50%);opacity:0;transition:opacity .2s;display:flex;flex-direction:column;justify-content:space-between;padding:8px}
 .mc:hover .mov{opacity:1}
-.mdel{align-self:flex-end;background:rgba(255,68,68,.9);border:none;border-radius:6px;width:27px;height:27px;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.mdel:hover{background:#ff1f1f}
-.mname{font-family:'Space Mono',monospace;font-size:10px;color:rgba(255,255,255,.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mbadge{position:absolute;top:7px;left:7px;background:rgba(0,0,0,.65);border-radius:5px;padding:2px 6px;font-size:11px}
-.msize{position:absolute;bottom:7px;right:7px;background:rgba(0,0,0,.65);border-radius:5px;padding:2px 6px;font-size:9px;font-family:'Space Mono',monospace;color:rgba(255,255,255,.6)}
-.empty-state{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 20px;text-align:center;gap:11px}
-.ei{font-size:52px;opacity:.2}.et{font-size:17px;font-weight:700;color:var(--mut)}.es{font-family:'Space Mono',monospace;font-size:11px;color:var(--mut);opacity:.5}
-.loader{grid-column:1/-1;display:flex;gap:7px;align-items:center;justify-content:center;padding:60px}
+.mdel{align-self:flex-end;background:rgba(220,38,38,.9);border:none;border-radius:7px;width:28px;height:28px;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.mdel:hover{background:#b91c1c}
+.mname{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.85);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mbadge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);border-radius:6px;padding:3px 7px;font-size:12px;backdrop-filter:blur(4px)}
+.msize{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.55);border-radius:5px;padding:2px 6px;font-size:9px;font-family:'DM Mono',monospace;color:rgba(255,255,255,.7);backdrop-filter:blur(4px)}
+.mtype-vid{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.play-icon{width:44px;height:44px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;backdrop-filter:blur(4px)}
+.empty-state{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;text-align:center;gap:12px}
+.ei{font-size:56px;opacity:.15}.et{font-size:18px;font-weight:700;color:var(--mut)}.es{font-family:'DM Mono',monospace;font-size:11px;color:var(--mut);opacity:.6}
+.loader{grid-column:1/-1;display:flex;gap:8px;align-items:center;justify-content:center;padding:60px}
 .loader span{width:10px;height:10px;border-radius:50%;background:var(--acc);animation:ld 1.2s ease-in-out infinite}
 .loader span:nth-child(2){background:var(--acc2);animation-delay:.2s}
 .loader span:nth-child(3){background:var(--acc3);animation-delay:.4s}
 @keyframes ld{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1);opacity:1}}
 
+/* Thumb placeholder */
+.thumb-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px;background:var(--card)}
+
 /* LOCK */
 #s-lock{align-items:center;justify-content:center;flex-direction:column;
-  background:radial-gradient(ellipse 500px 500px at 50% 40%,rgba(200,255,0,.04),transparent 70%),var(--bg)}
-.lcard{text-align:center;max-width:310px;width:100%;padding:18px}
-.lanim{font-size:76px;display:block;margin-bottom:18px;animation:lp 3s ease-in-out infinite}
-@keyframes lp{0%,100%{transform:scale(1);filter:drop-shadow(0 0 14px rgba(200,255,0,.1))}50%{transform:scale(1.06);filter:drop-shadow(0 0 36px rgba(200,255,0,.3))}}
-.ltitle{font-size:22px;font-weight:800;letter-spacing:5px;text-transform:uppercase;margin-bottom:5px}
-.lsub2{font-family:'Space Mono',monospace;font-size:11px;color:var(--mut);margin-bottom:28px}
-.pinput{width:100%;background:var(--sur);border:2px solid var(--bor2);border-radius:var(--r);padding:15px;text-align:center;font-family:'Space Mono',monospace;font-size:26px;letter-spacing:8px;color:var(--txt);outline:none;margin-bottom:13px;transition:border-color .2s,box-shadow .2s}
-.pinput:focus{border-color:var(--acc);box-shadow:0 0 0 4px rgba(200,255,0,.07)}
-.lbtns{display:flex;gap:9px}
+  background:radial-gradient(ellipse 500px 500px at 50% 40%,rgba(37,99,235,.05),transparent 70%),var(--bg)}
+.lcard{text-align:center;max-width:320px;width:100%;padding:20px}
+.lanim{font-size:80px;display:block;margin-bottom:20px;animation:lp 3s ease-in-out infinite}
+@keyframes lp{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.ltitle{font-size:22px;font-weight:800;letter-spacing:4px;text-transform:uppercase;margin-bottom:6px}
+.lsub2{font-family:'DM Mono',monospace;font-size:11px;color:var(--mut);margin-bottom:28px}
+.pinput{width:100%;background:var(--sur);border:2px solid var(--bor);border-radius:var(--r);padding:15px;text-align:center;font-family:'DM Mono',monospace;font-size:26px;letter-spacing:8px;color:var(--txt);outline:none;margin-bottom:14px;transition:border-color .2s,box-shadow .2s;box-shadow:var(--shadow)}
+.pinput:focus{border-color:var(--acc2);box-shadow:0 0 0 4px rgba(37,99,235,.1)}
+.lbtns{display:flex;gap:10px}
 .lbtns .btn{margin-top:0}
 
 /* GATE */
-#gate{display:none;position:fixed;inset:0;z-index:1500;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);align-items:center;justify-content:center}
+#gate{display:none;position:fixed;inset:0;z-index:1500;background:rgba(244,243,239,.92);backdrop-filter:blur(12px);align-items:center;justify-content:center}
 #gate.open{display:flex}
-.gcard{background:var(--sur);border:1px solid var(--bor2);border-radius:20px;padding:38px 34px;width:100%;max-width:340px;margin:18px;text-align:center;box-shadow:0 28px 70px rgba(0,0,0,.7);animation:gin .3s cubic-bezier(.34,1.4,.64,1)}
-@keyframes gin{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
-.gicon{font-size:44px;margin-bottom:13px;display:block}
-.gtitle{font-size:17px;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin-bottom:5px}
-.gsub{font-family:'Space Mono',monospace;font-size:11px;color:var(--mut);margin-bottom:22px}
-.ginput{width:100%;background:var(--card);border:1.5px solid var(--bor);border-radius:10px;padding:13px;text-align:center;font-family:'Space Mono',monospace;font-size:20px;letter-spacing:6px;color:var(--txt);outline:none;margin-bottom:13px;transition:border-color .2s}
-.ginput:focus{border-color:var(--acc)}
-.gbtns{display:flex;gap:9px}
+.gcard{background:var(--sur);border:1px solid var(--bor);border-radius:22px;padding:40px 36px;width:100%;max-width:360px;margin:18px;text-align:center;box-shadow:var(--shadow-lg);animation:gin .28s cubic-bezier(.34,1.4,.64,1)}
+@keyframes gin{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.gicon{font-size:46px;margin-bottom:14px;display:block}
+.gtitle{font-size:18px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.gsub{font-family:'DM Mono',monospace;font-size:11px;color:var(--mut);margin-bottom:24px}
+.ginput{width:100%;background:var(--card);border:1.5px solid var(--bor);border-radius:11px;padding:14px;text-align:center;font-family:'DM Mono',monospace;font-size:22px;letter-spacing:7px;color:var(--txt);outline:none;margin-bottom:14px;transition:border-color .2s,box-shadow .2s}
+.ginput:focus{border-color:var(--acc2);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.gbtns{display:flex;gap:10px}
 .gbtns .btn{margin-top:0}
 
 /* VIEWER */
-#viewer{display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.97);flex-direction:column;align-items:center;justify-content:center}
-#viewer.open{display:flex;animation:fadeIn .25s ease}
+#viewer{display:none;position:fixed;inset:0;z-index:2000;background:rgba(10,10,20,.96);flex-direction:column;align-items:center;justify-content:center}
+#viewer.open{display:flex;animation:fadeIn .22s ease}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.vbar{position:absolute;top:0;left:0;right:0;padding:13px 17px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(0,0,0,.85),transparent);z-index:1}
-#vname{font-family:'Space Mono',monospace;font-size:12px;color:rgba(255,255,255,.5);max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.vcbtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:7px 13px;color:#fff;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;transition:background .2s}
-.vcbtn:hover{background:rgba(255,255,255,.2)}
-#vmedia{max-width:92vw;max-height:85vh;display:flex;align-items:center;justify-content:center}
-#vmedia img,#vmedia video{max-width:92vw;max-height:85vh;object-fit:contain;border-radius:10px}
+.vbar{position:absolute;top:0;left:0;right:0;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(0,0,0,.8),transparent);z-index:1}
+#vname{font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,.6);max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vcbtn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 14px;color:#fff;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:background .2s}
+.vcbtn:hover{background:rgba(255,255,255,.22)}
+#vmedia{max-width:94vw;max-height:88vh;display:flex;align-items:center;justify-content:center}
+#vmedia img{max-width:94vw;max-height:88vh;object-fit:contain;border-radius:10px;display:block}
+#vmedia video{max-width:94vw;max-height:88vh;border-radius:10px;display:block;background:#000}
 
 /* TOAST */
-#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--sur);border:1.5px solid var(--bor2);border-radius:30px;padding:11px 22px;font-family:'Space Mono',monospace;font-size:12px;white-space:nowrap;z-index:9999;transition:transform .3s cubic-bezier(.34,1.4,.64,1);pointer-events:none}
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--sur);border:1.5px solid var(--bor2);border-radius:30px;padding:12px 24px;font-family:'DM Mono',monospace;font-size:12px;white-space:nowrap;z-index:9999;transition:transform .3s cubic-bezier(.34,1.4,.64,1);pointer-events:none;box-shadow:var(--shadow-lg)}
 #toast.show{transform:translateX(-50%) translateY(0)}
-#toast.ok{border-color:var(--acc2);color:var(--acc2)}
+#toast.ok{border-color:var(--green);color:var(--green)}
 #toast.err{border-color:var(--red);color:var(--red)}
-#toast.inf{border-color:var(--acc);color:var(--acc)}
+#toast.inf{border-color:var(--acc2);color:var(--acc2)}
 
 input[type="file"]{display:none}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bor2);border-radius:3px}
-@media(max-width:480px){.acard{padding:28px 20px;margin:10px}.vbody{padding:14px 10px 40px}#grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:9px}.chip{display:none}}
+@media(max-width:500px){.acard{padding:28px 20px;margin:10px}.vbody{padding:14px 10px 40px}#grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}.chip{display:none}.storage-bar{display:none}}
 </style>
 </head>
 <body>
@@ -199,10 +214,17 @@ input[type="file"]{display:none}
       ondragover="dzOver(event)" ondragleave="dzLeave()" ondrop="dzDrop(event)">
       <div class="dzi">📁</div>
       <div class="dzt">Add Photos &amp; Videos</div>
-      <div class="dzs">Drag &amp; drop · or tap to browse · Images &amp; Videos · up to 10MB each</div>
+      <div class="dzs">Drag &amp; drop · or tap to browse · No size limit · Stored locally on device</div>
       <button class="dzbtn" onclick="event.stopPropagation();document.getElementById('fi').click()">+ ADD FILES</button>
     </div>
     <input type="file" id="fi" multiple accept="image/*,video/*" onchange="onFilePick(event)">
+
+    <!-- Storage Bar -->
+    <div class="storage-bar">
+      <span class="sb-label">DEVICE STORAGE</span>
+      <div class="sb-track"><div class="sb-fill" id="sbfill" style="width:0%"></div></div>
+      <span class="sb-size" id="sbsize">0 MB used</span>
+    </div>
 
     <!-- Upload Progress -->
     <div id="upbox">
@@ -220,6 +242,7 @@ input[type="file"]{display:none}
       <div class="sc"><div class="snum" id="st0">0</div><div class="slbl">Total</div></div>
       <div class="sc"><div class="snum" id="st1">0</div><div class="slbl">Photos</div></div>
       <div class="sc"><div class="snum" id="st2">0</div><div class="slbl">Videos</div></div>
+      <div class="sc"><div class="snum" id="st3">0 MB</div><div class="slbl">Size</div></div>
     </div>
 
     <!-- Filters -->
@@ -248,7 +271,7 @@ input[type="file"]{display:none}
   </div>
 </div>
 
-<!-- PASSWORD GATE (before viewing any file) -->
+<!-- PASSWORD GATE -->
 <div id="gate">
   <div class="gcard">
     <span class="gicon">🛡️</span>
@@ -275,30 +298,21 @@ input[type="file"]{display:none}
 <div id="toast"></div>
 
 <script>
-// ════════════════════════════════════════════
-//  🔴 PASTE YOUR FIREBASE CONFIG HERE
-//  Firebase Console → Project Settings →
-//  Web App </> → Register → Copy config
-// ════════════════════════════════════════════
+// ═══════════════════════════════════
+// FIREBASE CONFIG — Auth only
+// ═══════════════════════════════════
 var FIREBASE_CONFIG = {
-      apiKey: "AIzaSyAC4Mx6zHVYB8ISGHtKZeG5QUGQtUsNnrc",
-    authDomain: "hidden-ad248.firebaseapp.com",
-    projectId: "hidden-ad248",
-    storageBucket: "hidden-ad248.firebasestorage.app",
-    messagingSenderId: "448667248050",
-    appId: "1:448667248050:web:36455f216b7cacf48cb0ab",
-    measurementId: "G-P2RFZ0G6BQ"
+  apiKey: "AIzaSyAC4Mx6zHVYB8ISGHtKZeG5QUGQtUsNnrc",
+  authDomain: "hidden-ad248.firebaseapp.com",
+  projectId: "hidden-ad248",
+  storageBucket: "hidden-ad248.firebasestorage.app",
+  messagingSenderId: "448667248050",
+  appId: "1:448667248050:web:36455f216b7cacf48cb0ab"
 };
-// ════════════════════════════════════════════
-
-// File size limit — Firestore doc max is ~1MB,
-// so we chunk large files. 10MB works fine.
-var MAX_FILE_MB  = 10;
-var CHUNK_SIZE   = 700000; // ~700KB per Firestore doc chunk
+// ═══════════════════════════════════
 
 firebase.initializeApp(FIREBASE_CONFIG);
 var auth = firebase.auth();
-var db   = firebase.firestore();
 
 var CU           = null;
 var ALL          = [];
@@ -307,25 +321,51 @@ var GATE_OK      = false;
 var PENDING_ITEM = null;
 var QUEUE        = [];
 var UPLOADING    = false;
+var DB           = null; // IndexedDB
+
+// ══════════════════════════════════════════════════════════
+// INDEXEDDB — All media stored here. No size limit (GBs OK)
+// Each record: { id, uid, name, type, mimeType, size, blob, createdAt }
+// ══════════════════════════════════════════════════════════
+function openIDB(){
+  return new Promise(function(resolve, reject){
+    var req = indexedDB.open('VaultDB', 2);
+    req.onupgradeneeded = function(e){
+      var db = e.target.result;
+      if(!db.objectStoreNames.contains('media')){
+        var store = db.createObjectStore('media', { keyPath:'id' });
+        store.createIndex('uid','uid',{unique:false});
+        store.createIndex('createdAt','createdAt',{unique:false});
+      }
+    };
+    req.onsuccess = function(e){ DB = e.target.result; resolve(DB); };
+    req.onerror   = function(e){ reject(e); };
+  });
+}
+
+function idbAdd(record){ return new Promise(function(res,rej){ var tx=DB.transaction('media','readwrite'); tx.objectStore('media').put(record).onsuccess=res; tx.onerror=rej; }); }
+function idbGetAll(uid){ return new Promise(function(res,rej){ var tx=DB.transaction('media','readonly'); var store=tx.objectStore('media'); var idx=store.index('uid'); var req=idx.getAll(IDBKeyRange.only(uid)); req.onsuccess=function(){ res(req.result); }; req.onerror=rej; }); }
+function idbDelete(id){ return new Promise(function(res,rej){ var tx=DB.transaction('media','readwrite'); tx.objectStore('media').delete(id).onsuccess=res; tx.onerror=rej; }); }
+function idbGet(id){ return new Promise(function(res,rej){ var tx=DB.transaction('media','readonly'); var req=tx.objectStore('media').get(id); req.onsuccess=function(){ res(req.result); }; req.onerror=rej; }); }
 
 // ── Screens ──────────────────────────────────
 function show(id){
-  ['s-auth','s-vault','s-lock'].forEach(function(s){
-    document.getElementById(s).classList.remove('active');
-  });
+  ['s-auth','s-vault','s-lock'].forEach(function(s){ document.getElementById(s).classList.remove('active'); });
   document.getElementById(id).classList.add('active');
 }
 
 // ── Auth State ────────────────────────────────
-auth.onAuthStateChanged(function(user){
-  if(user){
-    CU=user; GATE_OK=false;
-    document.getElementById('chip').textContent=user.email;
-    show('s-vault'); loadMedia();
-  } else {
-    CU=null; GATE_OK=false;
-    show('s-auth'); setMode('login');
-  }
+openIDB().then(function(){
+  auth.onAuthStateChanged(function(user){
+    if(user){
+      CU=user; GATE_OK=false;
+      document.getElementById('chip').textContent=user.email;
+      show('s-vault'); loadMedia();
+    } else {
+      CU=null; GATE_OK=false;
+      show('s-auth'); setMode('login');
+    }
+  });
 });
 
 // Auto-lock when tab hidden
@@ -456,16 +496,15 @@ function gateUnlock(){
     .catch(function(){ document.getElementById('ginp').value=''; toast('Wrong password ✗','err'); });
 }
 
-// ════════════════════════════
-// UPLOAD — Base64 into Firestore
-// Files > CHUNK_SIZE are split into
-// multiple chunk docs then reassembled
-// ════════════════════════════
+// ════════════════════════════════════════════
+// UPLOAD — Store raw Blob in IndexedDB
+// Fast, no size limit, works for videos
+// ════════════════════════════════════════════
 function onFilePick(e){
   var files=Array.from(e.target.files); e.target.value='';
   files.forEach(function(f){ QUEUE.push(f); });
   updateQueue();
-  if(!UPLOADING) nextUpload();
+  if(!UPLOADING) processQueue();
 }
 function dzOver(e){ e.preventDefault(); document.getElementById('dz').classList.add('over'); }
 function dzLeave(){ document.getElementById('dz').classList.remove('over'); }
@@ -474,7 +513,7 @@ function dzDrop(e){
   var files=Array.from(e.dataTransfer.files);
   files.forEach(function(f){ QUEUE.push(f); });
   updateQueue();
-  if(!UPLOADING) nextUpload();
+  if(!UPLOADING) processQueue();
 }
 
 function updateQueue(){
@@ -482,133 +521,53 @@ function updateQueue(){
   q.textContent = QUEUE.length ? QUEUE.length+' file(s) in queue' : '';
 }
 
-function nextUpload(){
-  if(!QUEUE.length){ UPLOADING=false; return; }
+// Process all queued files concurrently (batch of 3 at a time for speed)
+function processQueue(){
+  if(!QUEUE.length){ UPLOADING=false; updateStorageBar(); return; }
   UPLOADING=true;
-  var file=QUEUE.shift(); updateQueue();
-  doUpload(file, function(){ nextUpload(); });
-}
 
-function doUpload(file, done){
-  if(!CU){ toast('Not signed in','err'); done&&done(); return; }
+  var batch = QUEUE.splice(0, Math.min(3, QUEUE.length));
+  updateQueue();
 
-  var isImg=file.type.startsWith('image/');
-  var isVid=file.type.startsWith('video/');
-  if(!isImg && !isVid){
-    toast('"'+file.name+'" — images & videos only','err');
-    done&&done(); return;
-  }
-
-  var maxBytes = MAX_FILE_MB * 1024 * 1024;
-  if(file.size > maxBytes){
-    toast('"'+file.name+'" exceeds '+MAX_FILE_MB+'MB limit','err');
-    done&&done(); return;
-  }
-
-  // Show progress box
   var box=document.getElementById('upbox');
   box.style.display='block';
-  setUpUI(file.name, 0, 'Reading file…');
+  setUpUI(batch.map(function(f){return f.name;}).join(', '), 0, 'Saving '+batch.length+' file(s)…');
 
-  var reader=new FileReader();
-  reader.onprogress=function(e){
-    if(e.lengthComputable){
-      var p=Math.round(e.loaded/e.total*50); // reading = 0-50%
-      setUpUI(file.name, p, 'Reading… '+fmtBytes(e.loaded)+' / '+fmtBytes(e.total));
-    }
-  };
-
-  reader.onload=function(e){
-    var b64=e.target.result; // data:image/...;base64,XXXX
-    var data=b64.split(',')[1]; // just the base64 string
-
-    setUpUI(file.name, 55, 'Saving to database…');
-
-    // Split into chunks if needed
-    var chunks=[];
-    for(var i=0;i<data.length;i+=CHUNK_SIZE){
-      chunks.push(data.substring(i,i+CHUNK_SIZE));
-    }
-
-    var metaId=null;
-    var batch=db.batch();
-
-    // 1) Write metadata doc
-    var metaRef=db.collection('vault').doc();
-    metaId=metaRef.id;
-    batch.set(metaRef,{
-      uid:       CU.uid,
-      name:      file.name,
-      type:      isImg?'image':'video',
-      mimeType:  file.type,
-      size:      file.size,
-      chunks:    chunks.length,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    // 2) Write each chunk doc
-    chunks.forEach(function(chunk,idx){
-      var chunkRef=db.collection('vault_chunks').doc(metaId+'_'+idx);
-      batch.set(chunkRef,{ metaId:metaId, idx:idx, data:chunk });
-    });
-
-    var pPer=Math.round(40/Math.max(chunks.length,1));
-
-    batch.commit()
-      .then(function(){
-        setUpUI(file.name, 100, 'Saved ✓');
-        toast('"'+file.name+'" saved ✓','ok');
-        setTimeout(function(){ box.style.display='none'; },1200);
-        loadMedia();
-        done&&done();
-      })
-      .catch(function(err){
-        console.error(err);
-        // Batch failed — try one-by-one
-        saveChunksSerial(metaRef, metaId, chunks, file, done, box);
-      });
-  };
-
-  reader.onerror=function(){
-    toast('Could not read file','err');
-    document.getElementById('upbox').style.display='none';
-    done&&done();
-  };
-
-  reader.readAsDataURL(file);
-}
-
-function saveChunksSerial(metaRef, metaId, chunks, file, done, box){
-  var isImg=file.type.startsWith('image/');
-  // Save metadata first
-  metaRef.set({
-    uid:       CU.uid,
-    name:      file.name,
-    type:      isImg?'image':'video',
-    mimeType:  file.type,
-    size:      file.size,
-    chunks:    chunks.length,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(function(){
-    var idx=0;
-    function saveNext(){
-      if(idx>=chunks.length){
-        setUpUI(file.name,100,'Saved ✓');
-        toast('"'+file.name+'" saved ✓','ok');
-        setTimeout(function(){ box.style.display='none'; },1200);
-        loadMedia(); done&&done(); return;
-      }
-      var pct=Math.round(60+(idx/chunks.length)*38);
-      setUpUI(file.name, pct, 'Saving chunk '+(idx+1)+'/'+chunks.length+'…');
-      db.collection('vault_chunks').doc(metaId+'_'+idx).set({
-        metaId:metaId, idx:idx, data:chunks[idx]
-      }).then(function(){ idx++; saveNext(); })
-        .catch(function(e){ toast('Save failed: '+e.message,'err'); box.style.display='none'; done&&done(); });
-    }
-    saveNext();
+  var promises = batch.map(function(file){ return saveFile(file); });
+  Promise.all(promises).then(function(){
+    setUpUI('Done', 100, 'All saved ✓');
+    toast(batch.length+' file(s) saved ✓','ok');
+    loadMedia();
+    setTimeout(function(){
+      box.style.display='none';
+      if(QUEUE.length) processQueue();
+      else { UPLOADING=false; updateStorageBar(); }
+    }, 800);
   }).catch(function(e){
     toast('Save failed: '+e.message,'err');
-    box.style.display='none'; done&&done();
+    box.style.display='none';
+    UPLOADING=false;
+  });
+}
+
+function saveFile(file){
+  return new Promise(function(resolve, reject){
+    var isImg=file.type.startsWith('image/');
+    var isVid=file.type.startsWith('video/');
+    if(!isImg && !isVid){ toast('"'+file.name+'" — images & videos only','err'); resolve(); return; }
+
+    var record={
+      id: Date.now()+'_'+Math.random().toString(36).substr(2,9),
+      uid: CU.uid,
+      name: file.name,
+      type: isImg?'image':'video',
+      mimeType: file.type,
+      size: file.size,
+      blob: file, // Store raw Blob — fast, efficient, no base64 inflation
+      createdAt: Date.now()
+    };
+
+    idbAdd(record).then(resolve).catch(reject);
   });
 }
 
@@ -620,50 +579,59 @@ function setUpUI(name, pct, status){
 }
 
 function fmtBytes(b){
+  if(!b) return '0B';
   if(b<1024) return b+'B';
   if(b<1048576) return (b/1024).toFixed(1)+'KB';
-  return (b/1048576).toFixed(1)+'MB';
+  if(b<1073741824) return (b/1048576).toFixed(1)+'MB';
+  return (b/1073741824).toFixed(2)+'GB';
 }
 
-// ════════════════════
-// LOAD MEDIA
-// ════════════════════
+// ════════════════════════
+// LOAD MEDIA from IndexedDB
+// ════════════════════════
 function loadMedia(){
-  if(!CU) return;
+  if(!CU || !DB) return;
   document.getElementById('grid').innerHTML='<div class="loader"><span></span><span></span><span></span></div>';
 
-  db.collection('vault').where('uid','==',CU.uid).orderBy('createdAt','desc').get()
-    .then(gotMedia)
-    .catch(function(){
-      // fallback without orderBy
-      db.collection('vault').where('uid','==',CU.uid).get()
-        .then(function(snap){
-          var docs=[];
-          snap.forEach(function(d){ docs.push({id:d.id,ref:d}); });
-          gotMedia({ forEach:function(cb){ snap.forEach(cb); } });
-        })
-        .catch(function(e){
-          document.getElementById('grid').innerHTML=
-            '<div class="empty-state"><div class="ei">⚠️</div><div class="et">'+e.message+'</div></div>';
-        });
-    });
+  idbGetAll(CU.uid).then(function(records){
+    ALL = records.sort(function(a,b){ return b.createdAt - a.createdAt; });
+    renderGrid();
+    updateStorageBar();
+  }).catch(function(e){
+    document.getElementById('grid').innerHTML='<div class="empty-state"><div class="ei">⚠️</div><div class="et">'+e.message+'</div></div>';
+  });
 }
 
-function gotMedia(snap){
-  ALL=[];
-  snap.forEach(function(d){ ALL.push(Object.assign({id:d.id},d.data())); });
-  ALL.sort(function(a,b){
-    return ((b.createdAt&&b.createdAt.seconds)||0)-((a.createdAt&&a.createdAt.seconds)||0);
+function updateStorageBar(){
+  var total = ALL.reduce(function(s,i){ return s+(i.size||0); },0);
+  var gb1 = 1073741824;
+  var pct = Math.min(100, (total/gb1)*100);
+  document.getElementById('sbfill').style.width = pct+'%';
+  document.getElementById('sbsize').textContent = fmtBytes(total)+' used';
+}
+
+// Object URLs cache — avoids re-creating URLs for thumbnails
+var URL_CACHE = {};
+
+function getBlobUrl(item){
+  if(URL_CACHE[item.id]) return Promise.resolve(URL_CACHE[item.id]);
+  return idbGet(item.id).then(function(rec){
+    if(!rec || !rec.blob) return null;
+    var url = URL.createObjectURL(rec.blob);
+    URL_CACHE[item.id] = url;
+    return url;
   });
-  renderGrid();
 }
 
 function renderGrid(){
   var grid=document.getElementById('grid');
   var items=FILTER==='all'?ALL:ALL.filter(function(i){ return i.type===FILTER; });
+
+  var totalSize = ALL.reduce(function(s,i){return s+(i.size||0);},0);
   document.getElementById('st0').textContent=ALL.length;
-  document.getElementById('st1').textContent=ALL.filter(function(i){ return i.type==='image'; }).length;
-  document.getElementById('st2').textContent=ALL.filter(function(i){ return i.type==='video'; }).length;
+  document.getElementById('st1').textContent=ALL.filter(function(i){return i.type==='image';}).length;
+  document.getElementById('st2').textContent=ALL.filter(function(i){return i.type==='video';}).length;
+  document.getElementById('st3').textContent=fmtBytes(totalSize);
   grid.innerHTML='';
 
   if(!items.length){
@@ -674,31 +642,66 @@ function renderGrid(){
   items.forEach(function(item,idx){
     var card=document.createElement('div');
     card.className='mc';
-    card.style.animationDelay=Math.min(idx*0.045,0.5)+'s';
+    card.style.animationDelay=Math.min(idx*0.04,0.5)+'s';
 
-    // Thumbnail — we load the full file lazily when scrolled into view
-    // For now show a placeholder, then load on click via gate
-    var placeholder=document.createElement('div');
-    placeholder.style.cssText='width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:36px;background:var(--card)';
-    placeholder.textContent = item.type==='image' ? '🖼️' : '🎬';
-    card.appendChild(placeholder);
+    // Placeholder while thumbnail loads
+    var ph=document.createElement('div');
+    ph.className='thumb-ph';
+    ph.textContent = item.type==='image' ? '🖼️' : '🎬';
+    card.appendChild(ph);
 
-    // Load thumbnail in background
-    loadThumbnail(item, function(dataUrl){
-      if(!dataUrl) return;
-      var img=document.createElement('img');
-      img.src=dataUrl; img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0';
-      if(card.parentNode) card.replaceChild(img, placeholder);
+    // Load thumbnail asynchronously
+    getBlobUrl(item).then(function(url){
+      if(!url || !card.parentNode) return;
+      if(item.type==='image'){
+        var img=document.createElement('img');
+        img.src=url; img.alt=item.name;
+        img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0';
+        card.replaceChild(img, ph);
+      } else {
+        // Video thumbnail using canvas snapshot
+        var tmpVid=document.createElement('video');
+        tmpVid.src=url; tmpVid.muted=true; tmpVid.preload='metadata';
+        tmpVid.style.display='none';
+        document.body.appendChild(tmpVid);
+        tmpVid.addEventListener('loadeddata',function(){
+          tmpVid.currentTime=0.5;
+        });
+        tmpVid.addEventListener('seeked',function(){
+          try{
+            var canvas=document.createElement('canvas');
+            canvas.width=160; canvas.height=160;
+            var ctx=canvas.getContext('2d');
+            ctx.drawImage(tmpVid,0,0,160,160);
+            var img2=document.createElement('img');
+            img2.src=canvas.toDataURL('image/jpeg',0.7);
+            img2.style.cssText='width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0';
+            if(card.parentNode) card.replaceChild(img2, ph);
+          }catch(ex){}
+          document.body.removeChild(tmpVid);
+        });
+        tmpVid.addEventListener('error',function(){ document.body.removeChild(tmpVid); });
+      }
     });
 
+    // Badge
     var badge=document.createElement('div'); badge.className='mbadge';
     badge.textContent=item.type==='video'?'▶':'🖼';
     card.appendChild(badge);
 
+    // Play overlay for videos
+    if(item.type==='video'){
+      var ply=document.createElement('div'); ply.className='mtype-vid';
+      var pi=document.createElement('div'); pi.className='play-icon'; pi.textContent='▶';
+      ply.appendChild(pi); card.appendChild(ply);
+    }
+
+    // Size badge
     var szbadge=document.createElement('div'); szbadge.className='msize';
     szbadge.textContent=fmtBytes(item.size||0);
     card.appendChild(szbadge);
 
+    // Overlay
     var ov=document.createElement('div'); ov.className='mov';
     var del=document.createElement('button'); del.className='mdel'; del.textContent='✕';
     (function(i){ del.onclick=function(e){ e.stopPropagation(); deleteItem(i.id); }; })(item);
@@ -709,43 +712,6 @@ function renderGrid(){
   });
 }
 
-// Load thumbnail from Firestore chunks
-function loadThumbnail(item, cb){
-  assembleFile(item, function(dataUrl){
-    cb(dataUrl);
-  });
-}
-
-// Reassemble file from chunks
-function assembleFile(item, cb){
-  if(!item.chunks || item.chunks===0){ cb(null); return; }
-  var parts=[];
-  var total=item.chunks;
-  var loaded=0;
-  var failed=false;
-
-  for(var i=0;i<total;i++){
-    (function(idx){
-      db.collection('vault_chunks').doc(item.id+'_'+idx).get()
-        .then(function(doc){
-          if(failed) return;
-          if(doc.exists){
-            parts[idx]=doc.data().data;
-          } else {
-            parts[idx]='';
-          }
-          loaded++;
-          if(loaded===total){
-            var fullB64=parts.join('');
-            var mime=item.mimeType||( item.type==='image'?'image/jpeg':'video/mp4' );
-            cb('data:'+mime+';base64,'+fullB64);
-          }
-        })
-        .catch(function(){ failed=true; cb(null); });
-    })(i);
-  }
-}
-
 function setFilter(f,btn){
   FILTER=f;
   document.querySelectorAll('.ftab').forEach(function(t){ t.classList.remove('on'); });
@@ -754,31 +720,47 @@ function setFilter(f,btn){
 }
 
 // ════════════
-// VIEWER
+// VIEWER — uses Blob URLs for native video playback
 // ════════════
 function openViewer(item){
   var v=document.getElementById('viewer');
   var mc=document.getElementById('vmedia');
   document.getElementById('vname').textContent=item.name;
-  mc.innerHTML='<div style="color:var(--acc);font-family:Space Mono,monospace;font-size:13px">Loading…</div>';
+  mc.innerHTML='<div style="color:rgba(255,255,255,.5);font-family:DM Mono,monospace;font-size:13px">Loading…</div>';
   v.classList.add('open');
 
-  assembleFile(item, function(dataUrl){
+  getBlobUrl(item).then(function(url){
     mc.innerHTML='';
-    if(!dataUrl){ mc.innerHTML='<div style="color:var(--red)">Failed to load</div>'; return; }
+    if(!url){ mc.innerHTML='<div style="color:#ef4444">Failed to load</div>'; return; }
     if(item.type==='image'){
-      var img=document.createElement('img'); img.src=dataUrl; img.alt=item.name;
+      var img=document.createElement('img');
+      img.src=url; img.alt=item.name;
       mc.appendChild(img);
     } else {
-      var vid=document.createElement('video'); vid.src=dataUrl; vid.controls=true; vid.autoplay=true;
+      // Native video element with blob URL — works perfectly for all video formats
+      var vid=document.createElement('video');
+      vid.src=url;
+      vid.controls=true;
+      vid.autoplay=true;
+      vid.playsInline=true;
+      vid.preload='auto';
+      vid.style.cssText='max-width:94vw;max-height:88vh;border-radius:10px;display:block;background:#000';
+      vid.onerror=function(){
+        mc.innerHTML='<div style="color:#ef4444;font-family:DM Mono,monospace;font-size:12px;padding:20px;text-align:center">⚠️ Video format not supported by browser.<br>Try converting to MP4 (H.264).</div>';
+      };
       mc.appendChild(vid);
     }
   });
 }
 
 function viewerClose(){
-  document.getElementById('viewer').classList.remove('open');
-  document.getElementById('vmedia').innerHTML='';
+  var v=document.getElementById('viewer');
+  var mc=document.getElementById('vmedia');
+  // Pause any playing video
+  var vid=mc.querySelector('video');
+  if(vid){ vid.pause(); vid.src=''; }
+  v.classList.remove('open');
+  mc.innerHTML='';
 }
 
 document.getElementById('viewer').addEventListener('click',function(e){
@@ -790,17 +772,9 @@ document.getElementById('viewer').addEventListener('click',function(e){
 // ════════════
 function deleteItem(id){
   if(!confirm('Permanently delete this file?')) return;
-  // Delete metadata
-  db.collection('vault').doc(id).delete().then(function(){
-    // Delete all chunks
-    return db.collection('vault_chunks')
-      .where('metaId','==',id).get()
-      .then(function(snap){
-        var batch=db.batch();
-        snap.forEach(function(d){ batch.delete(d.ref); });
-        return batch.commit();
-      });
-  }).then(function(){
+  // Revoke cached URL
+  if(URL_CACHE[id]){ URL.revokeObjectURL(URL_CACHE[id]); delete URL_CACHE[id]; }
+  idbDelete(id).then(function(){
     toast('Deleted ✓','ok'); loadMedia();
   }).catch(function(e){ toast('Delete failed: '+e.message,'err'); });
 }
@@ -817,34 +791,6 @@ function toast(msg,type){
 
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape'){ viewerClose(); gateClose(); }
-});
-</script>
-
-<!-- SETUP GUIDE shown when config is placeholder -->
-<script>
-window.addEventListener('load',function(){
-  if(FIREBASE_CONFIG.apiKey!=='YOUR_API_KEY') return;
-  document.body.insertAdjacentHTML('beforeend',
-    '<div id="guide" style="position:fixed;inset:0;background:rgba(8,8,16,.98);display:flex;align-items:center;justify-content:center;z-index:99999;padding:14px;overflow-y:auto">'+
-    '<div style="background:#10101c;border:1px solid #303048;border-radius:20px;padding:30px;max-width:540px;width:100%;font-family:Space Mono,monospace">'+
-    '<div style="font-size:30px;text-align:center;margin-bottom:12px">🔥</div>'+
-    '<h2 style="font-family:Syne,sans-serif;font-size:18px;font-weight:800;color:#c8ff00;letter-spacing:3px;text-align:center;margin-bottom:18px">FIREBASE SETUP</h2>'+
-    '<div style="color:#888;font-size:11px;line-height:2.2">'+
-    '<b style="color:#eee">STEP 1</b> — <a href="https://console.firebase.google.com" target="_blank" style="color:#c8ff00">console.firebase.google.com</a> → Add Project<br>'+
-    '<b style="color:#eee">STEP 2</b> — Authentication → Get Started → Email/Password → Enable<br>'+
-    '<b style="color:#eee">STEP 3</b> — Firestore Database → Create Database → Test Mode<br>'+
-    '<b style="color:#eee">STEP 4</b> — Project Settings ⚙ → Web App &lt;/&gt; → Register → Copy config values<br>'+
-    '<b style="color:#eee">STEP 5</b> — Open this HTML in Notepad → find <code style="color:#c8ff00">FIREBASE_CONFIG</code> → paste your values → Save<br><br>'+
-    '<b style="color:#eee">FIRESTORE RULES</b> (Firestore → Rules → Publish):<br>'+
-    '<code style="color:#c8ff00;font-size:10px;display:block;background:#0a0a14;padding:10px;border-radius:8px;margin:5px 0;line-height:1.8">'+
-    "rules_version='2';<br>service cloud.firestore{<br>&nbsp;match/databases/{db}/documents{<br>&nbsp;&nbsp;match/vault/{doc}{allow read,write:if request.auth!=null;}<br>&nbsp;&nbsp;match/vault_chunks/{doc}{allow read,write:if request.auth!=null;}<br>&nbsp;}<br>}"+
-    '</code>'+
-    '<b style="color:#c8ff00">⚠️ NOTE:</b> Files stored as base64 in Firestore. Max <b style="color:#eee">10MB per file</b>.<br>'+
-    'Free Firestore quota: <b style="color:#eee">1GB storage</b> — plenty for personal use.<br>'+
-    '</div>'+
-    '<button onclick="document.getElementById(\'guide\').remove()" style="width:100%;margin-top:18px;padding:13px;background:#c8ff00;color:#080810;border:none;border-radius:10px;font-family:Syne,sans-serif;font-size:13px;font-weight:800;letter-spacing:2px;cursor:pointer">GOT IT — CLOSE</button>'+
-    '</div></div>'
-  );
 });
 </script>
 
