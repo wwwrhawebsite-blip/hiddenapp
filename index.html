@@ -3,926 +3,818 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🔒 Vault</title>
+<title>Secret Vault</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 
+<!-- Firebase COMPAT SDK - works with normal onclick handlers -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080810;--sur:#10101c;--card:#14141f;--bor:#252535;--bor2:#303048;
+  --acc:#c8ff00;--acc2:#00ffa3;--acc3:#7b5cff;
+  --txt:#eeeef8;--muted:#5c5c7a;--red:#ff4444;--r:13px;
+}
+html,body{height:100%;font-family:'Syne',sans-serif;background:var(--bg);color:var(--txt);overflow-x:hidden}
 
-:root {
-  --bg: #0a0a0f;
-  --surface: #111118;
-  --card: #16161f;
-  --border: #2a2a3a;
-  --accent: #e8ff3f;
-  --accent2: #3fffb0;
-  --text: #f0f0f8;
-  --muted: #6b6b88;
-  --red: #ff4f4f;
-  --radius: 12px;
-}
+/* SCREENS */
+.screen{display:none;min-height:100vh;width:100%}
+.screen.active{display:flex}
 
-body {
-  font-family: 'Syne', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
+/* ── AUTH ── */
+#s-auth{
+  align-items:center;justify-content:center;
+  background:radial-gradient(ellipse 700px 500px at 15% 80%,rgba(123,92,255,.07),transparent 60%),
+             radial-gradient(ellipse 500px 400px at 85% 10%,rgba(200,255,0,.05),transparent 60%),var(--bg);
 }
+.acard{width:100%;max-width:400px;padding:44px 38px 38px;background:var(--sur);border:1px solid var(--bor);border-radius:22px;box-shadow:0 30px 70px rgba(0,0,0,.6);margin:16px}
+.brand{text-align:center;margin-bottom:32px}
+.bicon{width:68px;height:68px;background:linear-gradient(135deg,#1a1a2e,#0f0f1e);border:2px solid var(--bor2);border-radius:18px;display:inline-flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:14px;box-shadow:0 0 28px rgba(200,255,0,.07)}
+.brand h1{font-size:24px;font-weight:800;letter-spacing:8px;text-transform:uppercase;color:var(--acc);margin-bottom:3px}
+.brand p{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--muted);text-transform:uppercase}
+.atitle{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:22px}
+.field{margin-bottom:13px}
+.field label{display:block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.field input{width:100%;background:var(--card);border:1.5px solid var(--bor);border-radius:10px;padding:13px 15px;font-family:'Space Mono',monospace;font-size:14px;color:var(--txt);outline:none;transition:border-color .2s,box-shadow .2s}
+.field input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(200,255,0,.07)}
+.field input::placeholder{color:var(--muted);font-size:12px}
+.btn{width:100%;padding:14px;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-top:5px}
+.btn-acc{background:var(--acc);color:#080810;box-shadow:0 4px 20px rgba(200,255,0,.14)}
+.btn-acc:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(200,255,0,.24)}
+.btn-acc:active{transform:translateY(0)}
+.btn-acc:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-ghost{background:var(--card);border:1.5px solid var(--bor);color:var(--txt)}
+.btn-ghost:hover{border-color:var(--acc);color:var(--acc)}
+.btn-danger{background:rgba(255,68,68,.08);border:1.5px solid rgba(255,68,68,.3);color:var(--red)}
+.btn-danger:hover{background:rgba(255,68,68,.15);border-color:var(--red)}
+.afooter{text-align:center;margin-top:18px;font-size:13px;color:var(--muted)}
+.afooter a{color:var(--acc);text-decoration:none;font-weight:700}
+.lsm{display:block;text-align:center;margin-top:12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);cursor:pointer;transition:color .2s}
+.lsm:hover{color:var(--acc2)}
 
-#auth-screen, #vault-screen, #lock-screen { display: none; min-height: 100vh; }
+/* ── VAULT ── */
+#s-vault{flex-direction:column}
+.vheader{position:sticky;top:0;z-index:200;background:rgba(8,8,16,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--bor);height:58px;padding:0 18px;display:flex;align-items:center;justify-content:space-between}
+.hl{display:flex;align-items:center;gap:9px}
+.hlogo{font-size:20px}
+.htitle{font-size:15px;font-weight:800;letter-spacing:5px;text-transform:uppercase;color:var(--acc)}
+.hr{display:flex;align-items:center;gap:7px}
+.chip{background:var(--card);border:1px solid var(--bor);border-radius:20px;padding:5px 11px;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbtn{background:var(--card);border:1px solid var(--bor);border-radius:8px;padding:6px 11px;font-size:15px;cursor:pointer;color:var(--txt);transition:all .2s;line-height:1}
+.hbtn:hover{border-color:var(--acc)}
+.vbody{flex:1;padding:22px 18px 40px;max-width:1100px;margin:0 auto;width:100%}
 
-/* AUTH */
-#auth-screen {
-  align-items: center; justify-content: center;
-  background: radial-gradient(ellipse at 20% 50%, #1a1a2e 0%, var(--bg) 60%);
-  position: relative; overflow: hidden;
-}
+/* Drop Zone */
+.dz{background:var(--sur);border:2px dashed var(--bor2);border-radius:18px;padding:34px 20px;text-align:center;cursor:pointer;transition:all .25s;margin-bottom:22px}
+.dz:hover,.dz.over{border-color:var(--acc);background:rgba(200,255,0,.02);transform:scale(1.005)}
+.dzi{font-size:38px;margin-bottom:9px}
+.dzt{font-size:16px;font-weight:700;margin-bottom:4px}
+.dzs{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:16px}
+.dzbtn{display:inline-block;background:var(--acc);color:#080810;border:none;border-radius:9px;padding:10px 24px;font-family:'Syne',sans-serif;font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.dzbtn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(200,255,0,.2)}
 
-.auth-box {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 20px; padding: 48px 40px; width: 100%;
-  max-width: 420px; box-shadow: 0 0 60px rgba(0,0,0,0.6);
-  position: relative; z-index: 1;
-}
+/* Upload bar */
+#upbox{display:none;background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:13px 17px;margin-bottom:18px}
+.uprow{display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:12px;margin-bottom:9px}
+.upname{color:var(--txt);max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uppct{color:var(--acc);font-weight:700}
+.uptrack{height:5px;background:var(--bor);border-radius:3px;overflow:hidden}
+#upbar{height:100%;width:0%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:3px;transition:width .2s}
 
-.vault-logo { text-align: center; margin-bottom: 32px; }
-.vault-logo .icon { font-size: 48px; display: block; margin-bottom: 8px; }
-.vault-logo h1 { font-size: 28px; font-weight: 800; letter-spacing: 6px; text-transform: uppercase; color: var(--accent); }
-.vault-logo p { color: var(--muted); font-size: 12px; font-family: 'Space Mono', monospace; letter-spacing: 2px; margin-top: 4px; }
+/* Stats */
+.stats{display:flex;gap:9px;margin-bottom:18px;flex-wrap:wrap}
+.sc{flex:1;min-width:80px;background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:12px 14px}
+.snum{font-size:24px;font-weight:800;color:var(--acc);line-height:1;margin-bottom:3px}
+.slbl{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
 
-#auth-title { font-size: 18px; font-weight: 700; margin-bottom: 24px; color: var(--text); letter-spacing: 1px; }
+/* Filters */
+.frow{display:flex;gap:7px;margin-bottom:18px;flex-wrap:wrap}
+.ftab{background:var(--sur);border:1.5px solid var(--bor);border-radius:8px;padding:7px 16px;font-family:'Syne',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .2s}
+.ftab:hover{border-color:var(--acc);color:var(--acc)}
+.ftab.on{background:var(--acc);border-color:var(--acc);color:#080810}
 
-.field { margin-bottom: 16px; }
-.field label { display: block; font-size: 11px; font-family: 'Space Mono', monospace; letter-spacing: 2px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; }
-.field input {
-  width: 100%; background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 14px 16px; color: var(--text);
-  font-family: 'Space Mono', monospace; font-size: 14px; outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232,255,63,0.08); }
-.field input::placeholder { color: var(--muted); }
+/* Grid */
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px}
+.mc{background:var(--card);border:1.5px solid var(--bor);border-radius:var(--r);aspect-ratio:1/1;overflow:hidden;position:relative;cursor:pointer;animation:popIn .35s ease both;transition:transform .2s,border-color .2s,box-shadow .2s}
+.mc:hover{transform:scale(1.04);border-color:var(--acc);box-shadow:0 8px 28px rgba(0,0,0,.5);z-index:2}
+@keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+.mc img,.mc video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.mov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 55%);opacity:0;transition:opacity .2s;display:flex;flex-direction:column;justify-content:space-between;padding:7px}
+.mc:hover .mov{opacity:1}
+.mdel{align-self:flex-end;background:rgba(255,68,68,.9);border:none;border-radius:6px;width:27px;height:27px;color:#fff;font-size:13px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.mdel:hover{background:#ff1f1f}
+.mname{font-family:'Space Mono',monospace;font-size:10px;color:rgba(255,255,255,.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mbadge{position:absolute;top:7px;left:7px;background:rgba(0,0,0,.6);border-radius:5px;padding:2px 6px;font-size:11px}
+.empty-state{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 20px;text-align:center;gap:11px}
+.ei{font-size:52px;opacity:.2}
+.et{font-size:17px;font-weight:700;color:var(--muted)}
+.es{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);opacity:.5}
+.loader{grid-column:1/-1;display:flex;gap:7px;align-items:center;justify-content:center;padding:60px}
+.loader span{width:10px;height:10px;border-radius:50%;background:var(--acc);animation:ld 1.2s ease-in-out infinite}
+.loader span:nth-child(2){background:var(--acc2);animation-delay:.2s}
+.loader span:nth-child(3){background:var(--acc3);animation-delay:.4s}
+@keyframes ld{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1);opacity:1}}
 
-.btn-primary {
-  width: 100%; background: var(--accent); color: #0a0a0f; border: none;
-  border-radius: var(--radius); padding: 16px; font-family: 'Syne', sans-serif;
-  font-size: 16px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
-  cursor: pointer; margin-top: 8px; transition: transform 0.15s, box-shadow 0.15s;
-}
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(232,255,63,0.25); }
-.btn-primary:active { transform: translateY(0); }
-.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+/* ── LOCK ── */
+#s-lock{align-items:center;justify-content:center;flex-direction:column;
+  background:radial-gradient(ellipse 500px 500px at 50% 40%,rgba(200,255,0,.04),transparent 70%),var(--bg)}
+.lcard{text-align:center;max-width:310px;width:100%;padding:18px}
+.lanim{font-size:76px;display:block;margin-bottom:18px;animation:lp 3s ease-in-out infinite}
+@keyframes lp{0%,100%{transform:scale(1);filter:drop-shadow(0 0 14px rgba(200,255,0,.1))}50%{transform:scale(1.06);filter:drop-shadow(0 0 36px rgba(200,255,0,.3))}}
+.ltitle{font-size:22px;font-weight:800;letter-spacing:5px;text-transform:uppercase;margin-bottom:5px}
+.lsub{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:28px}
+.pinput{width:100%;background:var(--sur);border:2px solid var(--bor2);border-radius:var(--r);padding:15px;text-align:center;font-family:'Space Mono',monospace;font-size:26px;letter-spacing:8px;color:var(--txt);outline:none;margin-bottom:13px;transition:border-color .2s,box-shadow .2s}
+.pinput:focus{border-color:var(--acc);box-shadow:0 0 0 4px rgba(200,255,0,.07)}
+.lbtns{display:flex;gap:9px}
+.lbtns .btn{margin-top:0}
 
-.auth-links { text-align: center; margin-top: 20px; font-size: 13px; color: var(--muted); }
-.auth-links a { color: var(--accent); text-decoration: none; font-weight: 700; }
+/* ── GATE MODAL ── */
+#gate{display:none;position:fixed;inset:0;z-index:1500;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);align-items:center;justify-content:center}
+#gate.open{display:flex}
+.gcard{background:var(--sur);border:1px solid var(--bor2);border-radius:20px;padding:38px 34px;width:100%;max-width:340px;margin:18px;text-align:center;box-shadow:0 28px 70px rgba(0,0,0,.7);animation:gin .3s cubic-bezier(.34,1.4,.64,1)}
+@keyframes gin{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.gicon{font-size:44px;margin-bottom:13px;display:block}
+.gtitle{font-size:17px;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin-bottom:5px}
+.gsub{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:22px}
+.ginput{width:100%;background:var(--card);border:1.5px solid var(--bor);border-radius:10px;padding:13px;text-align:center;font-family:'Space Mono',monospace;font-size:20px;letter-spacing:6px;color:var(--txt);outline:none;margin-bottom:13px;transition:border-color .2s}
+.ginput:focus{border-color:var(--acc)}
+.gbtns{display:flex;gap:9px}
+.gbtns .btn{margin-top:0}
 
-.forgot-link { text-align: center; margin-top: 12px; }
-.forgot-link a { color: var(--muted); font-size: 12px; font-family: 'Space Mono', monospace; text-decoration: none; transition: color 0.2s; }
-.forgot-link a:hover { color: var(--accent2); }
+/* ── VIEWER ── */
+#viewer{display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.97);flex-direction:column;align-items:center;justify-content:center}
+#viewer.open{display:flex;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.vbar{position:absolute;top:0;left:0;right:0;padding:13px 17px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(0,0,0,.8),transparent);z-index:1}
+#vname{font-family:'Space Mono',monospace;font-size:12px;color:rgba(255,255,255,.5);max-width:65%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vcbtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:7px 13px;color:#fff;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;transition:background .2s}
+.vcbtn:hover{background:rgba(255,255,255,.2)}
+#vmedia{max-width:92vw;max-height:85vh;display:flex;align-items:center;justify-content:center}
+#vmedia img,#vmedia video{max-width:92vw;max-height:85vh;object-fit:contain;border-radius:10px}
 
-/* VAULT */
-#vault-screen { flex-direction: column; }
+/* ── TOAST ── */
+#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--sur);border:1.5px solid var(--bor2);border-radius:30px;padding:11px 22px;font-family:'Space Mono',monospace;font-size:12px;white-space:nowrap;z-index:9999;transition:transform .3s cubic-bezier(.34,1.4,.64,1);pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.ok{border-color:var(--acc2);color:var(--acc2)}
+#toast.err{border-color:var(--red);color:var(--red)}
+#toast.inf{border-color:var(--acc);color:var(--acc)}
 
-.vault-header {
-  background: var(--surface); border-bottom: 1px solid var(--border);
-  padding: 0 24px; height: 64px; display: flex; align-items: center;
-  justify-content: space-between; position: sticky; top: 0; z-index: 100;
-}
-.header-logo { display: flex; align-items: center; gap: 10px; }
-.header-logo span { font-size: 24px; }
-.header-logo h2 { font-size: 18px; font-weight: 800; letter-spacing: 4px; color: var(--accent); }
+input[type="file"]{display:none}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bor2);border-radius:3px}
 
-.header-actions { display: flex; align-items: center; gap: 12px; }
-.user-chip {
-  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
-  padding: 6px 14px; font-size: 12px; font-family: 'Space Mono', monospace;
-  color: var(--muted); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+@media(max-width:480px){
+  .acard{padding:28px 20px;margin:10px}
+  .vbody{padding:14px 10px 40px}
+  #grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:9px}
+  .htitle{font-size:13px;letter-spacing:3px}
+  .chip{display:none}
 }
-.icon-btn {
-  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-  padding: 8px 14px; color: var(--text); cursor: pointer; font-size: 16px; transition: all 0.2s;
-}
-.icon-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-.vault-main { flex: 1; padding: 32px 24px; max-width: 1200px; margin: 0 auto; width: 100%; }
-
-#drop-zone {
-  border: 2px dashed var(--border); border-radius: 20px; padding: 40px;
-  text-align: center; margin-bottom: 32px; cursor: pointer; transition: all 0.3s;
-  background: var(--surface); position: relative; overflow: hidden;
-}
-#drop-zone:hover, #drop-zone.drag-over { border-color: var(--accent); background: rgba(232,255,63,0.03); }
-#drop-zone.drag-over { transform: scale(1.01); }
-
-.drop-icon { font-size: 48px; margin-bottom: 12px; display: block; }
-.drop-text { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-.drop-sub { font-size: 13px; color: var(--muted); font-family: 'Space Mono', monospace; }
-.drop-btn {
-  display: inline-block; margin-top: 16px; background: var(--accent); color: #0a0a0f;
-  border: none; border-radius: 10px; padding: 12px 28px; font-family: 'Syne', sans-serif;
-  font-weight: 800; font-size: 14px; letter-spacing: 2px; cursor: pointer;
-  text-transform: uppercase; transition: all 0.2s;
-}
-.drop-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(232,255,63,0.2); }
-
-/* Size warning */
-.size-info {
-  display: inline-block; margin-top: 8px; font-size: 11px;
-  font-family: 'Space Mono', monospace; color: var(--muted);
-  background: rgba(232,255,63,0.06); border: 1px solid rgba(232,255,63,0.15);
-  border-radius: 6px; padding: 4px 10px;
-}
-
-.filter-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-.filter-tabs { display: flex; gap: 8px; }
-.filter-tab {
-  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-  padding: 8px 20px; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
-  color: var(--muted); cursor: pointer; transition: all 0.2s; letter-spacing: 1px;
-}
-.filter-tab:hover { border-color: var(--accent); color: var(--accent); }
-.filter-tab.active { background: var(--accent); color: #0a0a0f; border-color: var(--accent); }
-
-.count-badge {
-  font-family: 'Space Mono', monospace; font-size: 12px; color: var(--muted);
-  background: var(--surface); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px;
-}
-
-#media-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 16px;
-  min-height: 200px;
-}
-
-.media-card {
-  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-  overflow: hidden; cursor: pointer; position: relative; aspect-ratio: 1;
-  animation: fadeUp 0.4s ease both;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-}
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.media-card:hover { transform: scale(1.03); border-color: var(--accent); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
-.media-card img, .media-card video { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-.card-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
-  display: flex; align-items: flex-start; justify-content: space-between;
-  padding: 10px; opacity: 0; transition: opacity 0.2s;
-}
-.media-card:hover .card-overlay { opacity: 1; }
-.card-type { font-size: 18px; }
-.delete-btn {
-  background: rgba(255,79,79,0.9); border: none; border-radius: 6px;
-  width: 28px; height: 28px; color: white; cursor: pointer; font-size: 14px;
-  font-weight: 700; display: flex; align-items: center; justify-content: center; transition: background 0.2s;
-}
-.delete-btn:hover { background: #ff2020; }
-.card-info {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
-  padding: 20px 10px 10px; font-size: 11px; font-family: 'Space Mono', monospace;
-  color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-/* Empty & Loading */
-#empty-state {
-  display: none; flex-direction: column; align-items: center;
-  justify-content: center; padding: 80px 20px; text-align: center;
-  gap: 12px; grid-column: 1/-1;
-}
-.empty-icon { font-size: 64px; opacity: 0.3; }
-.empty-text { font-size: 20px; font-weight: 700; color: var(--muted); }
-.empty-sub { font-size: 13px; font-family: 'Space Mono', monospace; color: var(--muted); opacity: 0.6; }
-
-/* Upload progress */
-#upload-bar {
-  display: none; background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px;
-}
-.upload-header { display: flex; justify-content: space-between; font-size: 13px; font-family: 'Space Mono', monospace; margin-bottom: 10px; color: var(--text); }
-.upload-track { background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; }
-#upload-progress { background: linear-gradient(90deg, var(--accent), var(--accent2)); height: 100%; border-radius: 4px; transition: width 0.3s; width: 0%; }
-
-/* Viewer */
-#viewer {
-  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-  z-index: 1000; align-items: center; justify-content: center; flex-direction: column;
-  padding: 20px; opacity: 0; transition: opacity 0.3s;
-}
-#viewer.open { opacity: 1; }
-.viewer-header {
-  position: absolute; top: 0; left: 0; right: 0; padding: 16px 20px;
-  display: flex; align-items: center; justify-content: space-between;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-}
-#viewer-title { font-size: 14px; font-family: 'Space Mono', monospace; color: var(--muted); }
-.viewer-close {
-  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 8px; padding: 8px 16px; color: white; cursor: pointer;
-  font-family: 'Space Mono', monospace; font-size: 12px; transition: all 0.2s;
-}
-.viewer-close:hover { background: rgba(255,255,255,0.2); }
-#viewer-content { max-width: 90vw; max-height: 85vh; display: flex; align-items: center; justify-content: center; }
-#viewer-content img { max-width: 100%; max-height: 85vh; border-radius: var(--radius); object-fit: contain; }
-#viewer-content video { max-width: 100%; max-height: 85vh; border-radius: var(--radius); }
-
-/* Lock Screen */
-#lock-screen {
-  align-items: center; justify-content: center;
-  background: var(--bg); background-image: radial-gradient(ellipse at center, rgba(232,255,63,0.04) 0%, transparent 70%);
-}
-.lock-box { text-align: center; max-width: 340px; width: 100%; padding: 20px; }
-.lock-icon { font-size: 72px; display: block; margin-bottom: 20px; animation: pulse 3s ease-in-out infinite; }
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-.lock-box h2 { font-size: 22px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 8px; }
-.lock-box p { font-size: 12px; font-family: 'Space Mono', monospace; color: var(--muted); margin-bottom: 32px; }
-.lock-box input {
-  width: 100%; background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 16px; color: var(--text);
-  font-family: 'Space Mono', monospace; font-size: 24px; letter-spacing: 6px;
-  text-align: center; outline: none; margin-bottom: 16px; transition: border-color 0.2s;
-}
-.lock-box input:focus { border-color: var(--accent); }
-.lock-box input::placeholder { letter-spacing: 3px; font-size: 16px; color: var(--muted); }
-.lock-actions { display: flex; gap: 10px; }
-.btn-secondary {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 14px; color: var(--muted); font-family: 'Syne', sans-serif; font-weight: 700;
-  font-size: 13px; cursor: pointer; transition: all 0.2s; flex: 1;
-}
-.btn-secondary:hover { border-color: var(--red); color: var(--red); }
-
-/* Toast */
-.toast {
-  position: fixed; bottom: 30px; left: 50%;
-  transform: translateX(-50%) translateY(80px);
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 10px; padding: 14px 24px; font-size: 14px;
-  font-family: 'Space Mono', monospace; transition: transform 0.3s;
-  z-index: 9999; white-space: nowrap; pointer-events: none;
-}
-.toast.show { transform: translateX(-50%) translateY(0); }
-.toast.success { border-color: var(--accent2); color: var(--accent2); }
-.toast.error { border-color: var(--red); color: var(--red); }
-.toast.info { border-color: var(--accent); color: var(--accent); }
-
-/* Loading dots */
-.loading-dots { display: flex; gap: 8px; align-items: center; justify-content: center; padding: 60px; grid-column: 1/-1; }
-.loading-dots span { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: dot 1.2s ease-in-out infinite; }
-.loading-dots span:nth-child(2) { animation-delay: 0.2s; background: var(--accent2); }
-.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes dot {
-  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-  40% { transform: scale(1); opacity: 1; }
-}
-
-/* Settings Panel */
-#settings-panel {
-  display: none; position: fixed; inset: 0; z-index: 500;
-  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-  align-items: flex-end; justify-content: center;
-}
-#settings-panel.open { display: flex; animation: slideUp 0.3s ease; }
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.settings-box {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 20px 20px 0 0; padding: 32px; width: 100%;
-  max-width: 480px; max-height: 80vh; overflow-y: auto;
-}
-.settings-box h3 { font-size: 18px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 24px; color: var(--accent); }
-.settings-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); }
-.settings-label { font-size: 14px; font-weight: 700; }
-.settings-sub { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; margin-top: 2px; }
-.settings-btn {
-  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
-  padding: 8px 16px; color: var(--text); font-family: 'Space Mono', monospace;
-  font-size: 12px; cursor: pointer; transition: all 0.2s;
-}
-.settings-btn:hover { border-color: var(--accent); color: var(--accent); }
-.settings-btn.danger:hover { border-color: var(--red); color: var(--red); }
-
-@media (max-width: 600px) {
-  .auth-box { padding: 32px 24px; }
-  .vault-main { padding: 16px; }
-  #media-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-  .header-logo h2 { display: none; }
-  .user-chip { max-width: 120px; }
-}
-
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-input[type="file"] { display: none; }
 </style>
 </head>
 <body>
 
-<!-- AUTH SCREEN -->
-<div id="auth-screen">
-  <div class="auth-box">
-    <div class="vault-logo">
-      <span class="icon">🔐</span>
+<!-- ══════════════════════════════════
+     AUTH SCREEN
+══════════════════════════════════ -->
+<div id="s-auth" class="screen">
+  <div class="acard">
+    <div class="brand">
+      <div class="bicon">🔐</div>
       <h1>VAULT</h1>
-      <p>PRIVATE MEDIA STORAGE</p>
+      <p>Private Media Storage</p>
     </div>
-    <h3 id="auth-title">Enter Vault</h3>
-
-    <div id="login-fields">
-      <div class="field">
-        <label>Email Address</label>
-        <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email">
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password">
-      </div>
+    <div id="atitle" class="atitle">Sign In to Your Vault</div>
+    <div class="field">
+      <label>Email Address</label>
+      <input type="email" id="i-email" placeholder="you@email.com" autocomplete="email">
     </div>
-
-    <div id="register-fields" style="display:none">
-      <div class="field">
-        <label>Confirm Password</label>
-        <input type="password" id="auth-confirm" placeholder="••••••••" autocomplete="new-password">
-      </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="i-pass" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')authSubmit()">
     </div>
-
-    <button class="btn-primary" id="auth-submit">Unlock</button>
-
-    <div class="forgot-link" id="forgot-link">
-      <a href="#" id="forgot-link-btn">Forgot password?</a>
+    <div class="field" id="f-confirm" style="display:none">
+      <label>Confirm Password</label>
+      <input type="password" id="i-confirm" placeholder="••••••••">
     </div>
-    <div class="auth-links" id="auth-switch">
-      No account? <a href="#" id="switch-link-btn">Create Vault</a>
+    <button class="btn btn-acc" id="abtn" onclick="authSubmit()">🔓 Unlock Vault</button>
+    <span class="lsm" id="flink" onclick="goForgot()">Forgot password?</span>
+    <div class="afooter" id="aswitch">
+      No vault yet? <a href="#" onclick="goRegister();return false">Create one</a>
     </div>
   </div>
 </div>
 
-<!-- VAULT SCREEN -->
-<div id="vault-screen">
-  <header class="vault-header">
-    <div class="header-logo">
-      <span>🔒</span>
-      <h2>VAULT</h2>
+<!-- ══════════════════════════════════
+     VAULT SCREEN
+══════════════════════════════════ -->
+<div id="s-vault" class="screen">
+  <header class="vheader">
+    <div class="hl">
+      <span class="hlogo">🔒</span>
+      <span class="htitle">VAULT</span>
     </div>
-    <div class="header-actions">
-      <span class="user-chip" id="user-email"></span>
-      <button class="icon-btn" id="settings-btn" title="Settings">⚙️</button>
-      <button class="icon-btn" id="lock-btn" title="Lock vault">🔒</button>
+    <div class="hr">
+      <span class="chip" id="chip"></span>
+      <button class="hbtn" onclick="lockVault()" title="Lock vault">🔒</button>
+      <button class="hbtn" onclick="signOutUser()" title="Sign out">🚪</button>
     </div>
   </header>
 
-  <main class="vault-main">
-    <div id="drop-zone">
-      <span class="drop-icon">📁</span>
-      <div class="drop-text">Drop files here or click to upload</div>
-      <div class="drop-sub">Images &amp; videos · Stored privately in your vault</div>
-      <button class="drop-btn" id="add-btn">+ ADD TO VAULT</button>
-      <div><span class="size-info">⚠️ Max 700KB per file (Firestore limit)</span></div>
+  <div class="vbody">
+    <!-- Drop Zone -->
+    <div class="dz" id="dz"
+      onclick="document.getElementById('fi').click()"
+      ondragover="dzOver(event)" ondragleave="dzLeave()" ondrop="dzDrop(event)">
+      <div class="dzi">📁</div>
+      <div class="dzt">Add Photos &amp; Videos to Vault</div>
+      <div class="dzs">Drag &amp; drop here · or tap to browse · Images &amp; Videos only</div>
+      <button class="dzbtn" onclick="event.stopPropagation();document.getElementById('fi').click()">+ ADD FILES</button>
     </div>
-    <input type="file" id="file-input" multiple accept="image/*,video/*">
+    <input type="file" id="fi" multiple accept="image/*,video/*" onchange="onFilePick(event)">
 
-    <div id="upload-bar">
-      <div class="upload-header">
-        <span id="upload-file-name">Processing...</span>
-        <span id="upload-pct">0%</span>
+    <!-- Upload Progress Bar -->
+    <div id="upbox">
+      <div class="uprow">
+        <span class="upname" id="upname">Uploading…</span>
+        <span class="uppct" id="uppct">0%</span>
       </div>
-      <div class="upload-track">
-        <div id="upload-progress"></div>
-      </div>
+      <div class="uptrack"><div id="upbar"></div></div>
     </div>
 
-    <div class="filter-bar">
-      <div class="filter-tabs">
-        <button class="filter-tab active" data-filter="all">ALL</button>
-        <button class="filter-tab" data-filter="images">📷 PHOTOS</button>
-        <button class="filter-tab" data-filter="videos">🎬 VIDEOS</button>
-      </div>
-      <span class="count-badge" id="count-badge">0 items</span>
+    <!-- Stats -->
+    <div class="stats">
+      <div class="sc"><div class="snum" id="st0">0</div><div class="slbl">Total</div></div>
+      <div class="sc"><div class="snum" id="st1">0</div><div class="slbl">Photos</div></div>
+      <div class="sc"><div class="snum" id="st2">0</div><div class="slbl">Videos</div></div>
     </div>
 
-    <div id="media-grid">
-      <div class="loading-dots"><span></span><span></span><span></span></div>
+    <!-- Filters -->
+    <div class="frow">
+      <button class="ftab on" onclick="setFilter('all',this)">All</button>
+      <button class="ftab"    onclick="setFilter('image',this)">📷 Photos</button>
+      <button class="ftab"    onclick="setFilter('video',this)">🎬 Videos</button>
     </div>
-    <div id="empty-state">
-      <span class="empty-icon">🗄️</span>
-      <div class="empty-text">Vault is empty</div>
-      <div class="empty-sub">Upload photos &amp; videos to store them here</div>
-    </div>
-  </main>
-</div>
 
-<!-- LOCK SCREEN -->
-<div id="lock-screen">
-  <div class="lock-box">
-    <span class="lock-icon">🔐</span>
-    <h2>Vault Locked</h2>
-    <p>Enter your password to access vault</p>
-    <input type="password" id="lock-password" placeholder="••••••••">
-    <div class="lock-actions">
-      <button class="btn-secondary" id="lock-signout-btn">Sign Out</button>
-      <button class="btn-primary" id="unlock-btn">UNLOCK</button>
+    <!-- Media Grid -->
+    <div id="grid">
+      <div class="loader"><span></span><span></span><span></span></div>
     </div>
   </div>
 </div>
 
-<!-- VIEWER -->
+<!-- ══════════════════════════════════
+     LOCK SCREEN
+══════════════════════════════════ -->
+<div id="s-lock" class="screen">
+  <div class="lcard">
+    <span class="lanim">🔐</span>
+    <div class="ltitle">Vault Locked</div>
+    <div class="lsub">Enter your password to access vault</div>
+    <input class="pinput" type="password" id="linp" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')unlockVault()">
+    <div class="lbtns">
+      <button class="btn btn-danger" onclick="signOutUser()">Sign Out</button>
+      <button class="btn btn-acc"    onclick="unlockVault()">🔓 Unlock</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PASSWORD GATE (view media)
+══════════════════════════════════ -->
+<div id="gate">
+  <div class="gcard">
+    <span class="gicon">🛡️</span>
+    <div class="gtitle">Verify Password</div>
+    <div class="gsub">Enter your password to view this file</div>
+    <input class="ginput" type="password" id="ginp" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')gateUnlock()">
+    <div class="gbtns">
+      <button class="btn btn-ghost"  onclick="gateClose()">Cancel</button>
+      <button class="btn btn-acc"    onclick="gateUnlock()">View</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MEDIA VIEWER
+══════════════════════════════════ -->
 <div id="viewer">
-  <div class="viewer-header">
-    <span id="viewer-title"></span>
-    <button class="viewer-close" id="viewer-close-btn">✕ CLOSE</button>
+  <div class="vbar">
+    <span id="vname"></span>
+    <button class="vcbtn" onclick="viewerClose()">✕ Close</button>
   </div>
-  <div id="viewer-content"></div>
+  <div id="vmedia"></div>
 </div>
 
-<!-- SETTINGS PANEL -->
-<div id="settings-panel">
-  <div class="settings-box">
-    <h3>⚙ Settings</h3>
-    <div class="settings-item">
-      <div>
-        <div class="settings-label">Lock Vault</div>
-        <div class="settings-sub">Requires password to reopen</div>
-      </div>
-      <button class="settings-btn" id="settings-lock-btn">🔒 Lock</button>
-    </div>
-    <div class="settings-item">
-      <div>
-        <div class="settings-label">Signed In As</div>
-        <div class="settings-sub" id="settings-email">—</div>
-      </div>
-    </div>
-    <div class="settings-item">
-      <div>
-        <div class="settings-label">Reset Password</div>
-        <div class="settings-sub">Send reset link to your email</div>
-      </div>
-      <button class="settings-btn" id="settings-reset-btn">Send Email</button>
-    </div>
-    <div class="settings-item">
-      <div>
-        <div class="settings-label">Auto-Lock</div>
-        <div class="settings-sub">Locks when app is hidden/minimized</div>
-      </div>
-      <span style="color:var(--accent2); font-size:12px; font-family:'Space Mono',monospace">ENABLED</span>
-    </div>
-    <div class="settings-item">
-      <div>
-        <div class="settings-label">Sign Out</div>
-        <div class="settings-sub">Removes session from this device</div>
-      </div>
-      <button class="settings-btn danger" id="settings-signout-btn">Sign Out</button>
-    </div>
-    <br>
-    <button class="btn-secondary" style="width:100%" id="settings-close-btn">Close</button>
-  </div>
-</div>
+<!-- TOAST -->
+<div id="toast"></div>
 
-<div id="toast" class="toast"></div>
-
-<!-- Firebase (Firestore only — no Storage) -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-  sendPasswordResetEmail, onAuthStateChanged, signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {
-  getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-// ── Firebase Config ────────────────────────────
-const firebaseConfig = {
-  apiKey: "AIzaSyBM_CSlh0TIARF6A8YoHzlqJ64FFr0VY-Q",
+<!-- ══════════════════════════════════
+     MAIN SCRIPT
+══════════════════════════════════ -->
+<script>
+// ════════════════════════════════════════════
+// 🔴  PASTE YOUR FIREBASE CONFIG HERE
+//     Firebase Console → Project Settings →
+//     Web App (</>)  → Copy firebaseConfig
+// ════════════════════════════════════════════
+var FIREBASE_CONFIG = {
+ apiKey: "AIzaSyBM_CSlh0TIARF6A8YoHzlqJ64FFr0VY-Q",
   authDomain: "hidedata-b8002.firebaseapp.com",
+  databaseURL: "https://hidedata-b8002-default-rtdb.firebaseio.com",
   projectId: "hidedata-b8002",
+  storageBucket: "hidedata-b8002.firebasestorage.app",
   messagingSenderId: "935184902355",
-  appId: "1:935184902355:web:0bd54653dd97cbe0ec4c26"
+  appId: "1:935184902355:web:0bd54653dd97cbe0ec4c26",
+  measurementId: "G-9BRPNT0MDD"
 };
+// ════════════════════════════════════════════
 
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);
+// Init Firebase
+firebase.initializeApp(FIREBASE_CONFIG);
+var auth    = firebase.auth();
+var db      = firebase.firestore();
+var storage = firebase.storage();
 
-// ── State ──────────────────────────────────────
-let currentUser   = null;
-let mediaItems    = [];
-let currentFilter = 'all';
-let sessionLocked = false;
-let authMode      = 'login';
-let uploading     = false;
+// Global state
+var CU           = null;   // current user
+var ALL          = [];     // all media items
+var FILTER       = 'all';
+var GATE_OK      = false;  // verified this session?
+var PENDING_ITEM = null;   // item waiting to open after gate
+var UPLOADING    = false;
 
-// ── DOM refs ───────────────────────────────────
-const authScreen     = document.getElementById('auth-screen');
-const vaultScreen    = document.getElementById('vault-screen');
-const lockScreen     = document.getElementById('lock-screen');
-const authTitle      = document.getElementById('auth-title');
-const loginFields    = document.getElementById('login-fields');
-const registerFields = document.getElementById('register-fields');
-const authSubmit     = document.getElementById('auth-submit');
-const authSwitch     = document.getElementById('auth-switch');
-const forgotLink     = document.getElementById('forgot-link');
-const authEmail      = document.getElementById('auth-email');
-const authPassword   = document.getElementById('auth-password');
-const authConfirm    = document.getElementById('auth-confirm');
-const userEmailEl    = document.getElementById('user-email');
-const settingsEmailEl= document.getElementById('settings-email');
-const mediaGrid      = document.getElementById('media-grid');
-const emptyState     = document.getElementById('empty-state');
-const countBadge     = document.getElementById('count-badge');
-const fileInput      = document.getElementById('file-input');
-const uploadBar      = document.getElementById('upload-bar');
-const uploadFileName = document.getElementById('upload-file-name');
-const uploadPct      = document.getElementById('upload-pct');
-const uploadProgress = document.getElementById('upload-progress');
-const viewer         = document.getElementById('viewer');
-const viewerTitle    = document.getElementById('viewer-title');
-const viewerContent  = document.getElementById('viewer-content');
-const lockPassword   = document.getElementById('lock-password');
-const settingsPanel  = document.getElementById('settings-panel');
-const toast          = document.getElementById('toast');
-
-// ── Screen helpers ─────────────────────────────
-function showAuth(mode) {
-  authScreen.style.display  = 'flex';
-  vaultScreen.style.display = 'none';
-  lockScreen.style.display  = 'none';
-  setAuthMode(mode || 'login');
+// ── Screens ──────────────────────────────────
+function show(id){
+  ['s-auth','s-vault','s-lock'].forEach(function(s){
+    document.getElementById(s).classList.remove('active');
+  });
+  document.getElementById(id).classList.add('active');
 }
 
-function showVault() {
-  authScreen.style.display  = 'none';
-  vaultScreen.style.display = 'flex';
-  lockScreen.style.display  = 'none';
-  userEmailEl.textContent   = currentUser?.email || '';
-  settingsEmailEl.textContent = currentUser?.email || '';
-}
+// ── Auth State ────────────────────────────────
+auth.onAuthStateChanged(function(user){
+  if(user){
+    CU = user;
+    GATE_OK = false;
+    document.getElementById('chip').textContent = user.email;
+    show('s-vault');
+    loadMedia();
+  } else {
+    CU = null;
+    GATE_OK = false;
+    show('s-auth');
+    setMode('login');
+  }
+});
 
-function showLock() {
-  authScreen.style.display  = 'none';
-  vaultScreen.style.display = 'none';
-  lockScreen.style.display  = 'flex';
-  lockPassword.value        = '';
-  sessionLocked             = true;
-}
+// Auto-lock when tab hidden
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden && CU){
+    GATE_OK = false;
+    document.getElementById('linp').value = '';
+    show('s-lock');
+  }
+});
 
-// ── Auth modes ─────────────────────────────────
-function setAuthMode(mode) {
-  authMode = mode;
-  if (mode === 'login') {
-    authTitle.textContent = 'Enter Vault';
-    loginFields.style.display    = 'block';
-    registerFields.style.display = 'none';
-    authSubmit.textContent  = 'Unlock';
-    forgotLink.style.display= 'block';
-    authSwitch.innerHTML = `No account? <a href="#" id="switch-link-btn">Create Vault</a>`;
-    document.getElementById('switch-link-btn').onclick = e => { e.preventDefault(); setAuthMode('register'); };
-  } else if (mode === 'register') {
-    authTitle.textContent = 'Create Vault';
-    loginFields.style.display    = 'block';
-    registerFields.style.display = 'block';
-    authSubmit.textContent  = 'Create Vault';
-    forgotLink.style.display= 'none';
-    authSwitch.innerHTML = `Have an account? <a href="#" id="switch-link-btn">Login</a>`;
-    document.getElementById('switch-link-btn').onclick = e => { e.preventDefault(); setAuthMode('login'); };
-  } else if (mode === 'forgot') {
-    authTitle.textContent = 'Reset Password';
-    loginFields.style.display    = 'block';
-    registerFields.style.display = 'none';
-    authSubmit.textContent  = 'Send Reset Email';
-    forgotLink.style.display= 'none';
-    authSwitch.innerHTML = `<a href="#" id="switch-link-btn">← Back to Login</a>`;
-    document.getElementById('switch-link-btn').onclick = e => { e.preventDefault(); setAuthMode('login'); };
+// ═════════════════════════════════
+// AUTH
+// ═════════════════════════════════
+var MODE = 'login';
+
+function setMode(m){
+  MODE = m;
+  var title  = document.getElementById('atitle');
+  var btn    = document.getElementById('abtn');
+  var sw     = document.getElementById('aswitch');
+  var flink  = document.getElementById('flink');
+  var fconf  = document.getElementById('f-confirm');
+  if(m==='login'){
+    title.textContent = 'Sign In to Your Vault';
+    btn.textContent   = '🔓 Unlock Vault';
+    flink.style.display = 'block';
+    fconf.style.display = 'none';
+    sw.innerHTML = 'No vault yet? <a href="#" onclick="goRegister();return false">Create one</a>';
+  } else if(m==='register'){
+    title.textContent = 'Create Your Vault';
+    btn.textContent   = '🏗️ Create Vault';
+    flink.style.display = 'none';
+    fconf.style.display = 'block';
+    sw.innerHTML = 'Already have vault? <a href="#" onclick="goLogin();return false">Sign in</a>';
+  } else if(m==='forgot'){
+    title.textContent = 'Reset Password';
+    btn.textContent   = '📧 Send Reset Email';
+    flink.style.display = 'none';
+    fconf.style.display = 'none';
+    sw.innerHTML = '<a href="#" onclick="goLogin();return false">← Back to Sign In</a>';
   }
 }
 
-// ── Auth submit ────────────────────────────────
-authSubmit.onclick = async () => {
-  if (authMode === 'login')    await doLogin();
-  else if (authMode === 'register') await doRegister();
-  else if (authMode === 'forgot')   await doForgotPassword();
-};
+function goLogin()    { setMode('login'); }
+function goRegister() { setMode('register'); }
+function goForgot()   { setMode('forgot'); }
 
-authPassword.addEventListener('keydown', e => { if (e.key === 'Enter') authSubmit.click(); });
-if (authConfirm) authConfirm.addEventListener('keydown', e => { if (e.key === 'Enter') authSubmit.click(); });
-lockPassword.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('unlock-btn').click(); });
-document.getElementById('forgot-link-btn').onclick = e => { e.preventDefault(); setAuthMode('forgot'); };
+function authSubmit(){
+  var email = document.getElementById('i-email').value.trim();
+  var pass  = document.getElementById('i-pass').value;
+  var btn   = document.getElementById('abtn');
 
-async function doLogin() {
-  const email = authEmail.value.trim();
-  const pass  = authPassword.value;
-  if (!email || !pass) return showMsg('Fill in all fields', 'error');
-  authSubmit.disabled = true;
-  try {
-    showMsg('Unlocking...', 'info');
-    await signInWithEmailAndPassword(auth, email, pass);
-  } catch (e) {
-    showMsg(getFriendlyError(e.code), 'error');
-  } finally {
-    authSubmit.disabled = false;
+  if(!email) return toast('Enter your email','err');
+  if(!pass && MODE!=='forgot') return toast('Enter your password','err');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Please wait…';
+
+  if(MODE==='login'){
+    auth.signInWithEmailAndPassword(email, pass)
+      .catch(function(e){ toast(fErr(e.code),'err'); btn.disabled=false; setMode('login'); });
+
+  } else if(MODE==='register'){
+    var conf = document.getElementById('i-confirm').value;
+    if(pass!==conf)   { btn.disabled=false; return toast('Passwords do not match','err'); }
+    if(pass.length<6) { btn.disabled=false; return toast('Password min 6 characters','err'); }
+    auth.createUserWithEmailAndPassword(email, pass)
+      .catch(function(e){ toast(fErr(e.code),'err'); btn.disabled=false; setMode('register'); });
+
+  } else if(MODE==='forgot'){
+    auth.sendPasswordResetEmail(email)
+      .then(function(){
+        toast('Reset email sent! Check inbox ✉️','ok');
+        btn.disabled=false;
+        setMode('login');
+      })
+      .catch(function(e){ toast(fErr(e.code),'err'); btn.disabled=false; });
   }
 }
 
-async function doRegister() {
-  const email   = authEmail.value.trim();
-  const pass    = authPassword.value;
-  const confirm = authConfirm.value;
-  if (!email || !pass)         return showMsg('Fill in all fields', 'error');
-  if (pass !== confirm)        return showMsg('Passwords do not match', 'error');
-  if (pass.length < 6)         return showMsg('Password must be 6+ characters', 'error');
-  authSubmit.disabled = true;
-  try {
-    showMsg('Creating vault...', 'info');
-    await createUserWithEmailAndPassword(auth, email, pass);
-  } catch (e) {
-    showMsg(getFriendlyError(e.code), 'error');
-  } finally {
-    authSubmit.disabled = false;
-  }
+function fErr(code){
+  var m={
+    'auth/user-not-found':       'No account with this email',
+    'auth/wrong-password':       'Wrong password',
+    'auth/invalid-credential':   'Wrong email or password',
+    'auth/email-already-in-use': 'Email already registered',
+    'auth/weak-password':        'Password too weak (min 6 chars)',
+    'auth/invalid-email':        'Invalid email address',
+    'auth/too-many-requests':    'Too many attempts — try later',
+    'auth/network-request-failed':'Network error — check connection',
+    'auth/api-key-not-valid.-please-pass-a-valid-api-key.':'⚠️ Invalid Firebase API Key — check config',
+  };
+  return m[code] || ('Error: ' + code);
 }
 
-async function doForgotPassword() {
-  const email = authEmail.value.trim();
-  if (!email) return showMsg('Enter your email address', 'error');
-  try {
-    await sendPasswordResetEmail(auth, email);
-    showMsg('Reset email sent! Check your inbox.', 'success');
-  } catch (e) { showMsg(getFriendlyError(e.code), 'error'); }
+function signOutUser(){
+  if(!confirm('Sign out of vault?')) return;
+  auth.signOut();
 }
 
-// ── Unlock / Logout ────────────────────────────
-document.getElementById('unlock-btn').onclick = async () => {
-  const pass = lockPassword.value;
-  if (!pass) return showMsg('Enter your password', 'error');
-  try {
-    await signInWithEmailAndPassword(auth, currentUser.email, pass);
-    sessionLocked = false;
-    showVault();
-  } catch (e) { showMsg('Wrong password', 'error'); }
-};
-
-async function doLogout() {
-  if (!confirm('Sign out of vault?')) return;
-  await signOut(auth);
+// ═════════════════════════════════
+// LOCK / UNLOCK
+// ═════════════════════════════════
+function lockVault(){
+  GATE_OK = false;
+  document.getElementById('linp').value = '';
+  show('s-lock');
+  setTimeout(function(){ document.getElementById('linp').focus(); }, 150);
 }
 
-document.getElementById('lock-signout-btn').onclick = doLogout;
-document.getElementById('lock-btn').onclick         = showLock;
-document.getElementById('settings-btn').onclick     = () => settingsPanel.classList.add('open');
-document.getElementById('settings-lock-btn').onclick= () => { settingsPanel.classList.remove('open'); showLock(); };
-document.getElementById('settings-signout-btn').onclick = doLogout;
-document.getElementById('settings-close-btn').onclick   = () => settingsPanel.classList.remove('open');
-settingsPanel.onclick = e => { if (e.target === settingsPanel) settingsPanel.classList.remove('open'); };
+function unlockVault(){
+  var pass = document.getElementById('linp').value;
+  if(!pass) return toast('Enter your password','err');
+  var cred = firebase.auth.EmailAuthProvider.credential(CU.email, pass);
+  CU.reauthenticateWithCredential(cred)
+    .then(function(){
+      GATE_OK = true;
+      show('s-vault');
+      toast('Vault unlocked ✓','ok');
+    })
+    .catch(function(){
+      document.getElementById('linp').value = '';
+      toast('Wrong password ✗','err');
+    });
+}
 
-document.getElementById('settings-reset-btn').onclick = async () => {
-  const email = currentUser?.email;
-  if (!email) return;
-  settingsPanel.classList.remove('open');
-  try {
-    await sendPasswordResetEmail(auth, email);
-    showMsg('Reset email sent!', 'success');
-  } catch (e) { showMsg('Failed to send reset email', 'error'); }
-};
+// ═════════════════════════════════
+// PASSWORD GATE (before viewing)
+// ═════════════════════════════════
+function gateOpen(item){
+  if(GATE_OK){ openViewer(item); return; }
+  PENDING_ITEM = item;
+  document.getElementById('ginp').value = '';
+  document.getElementById('gate').classList.add('open');
+  setTimeout(function(){ document.getElementById('ginp').focus(); }, 150);
+}
 
-// ── File Upload (base64 → Firestore) ──────────
-const MAX_SIZE = 700 * 1024; // 700 KB — Firestore doc limit is ~1MB, base64 adds ~33%
+function gateClose(){
+  document.getElementById('gate').classList.remove('open');
+  PENDING_ITEM = null;
+}
 
-function triggerUpload() { if (!uploading) fileInput.click(); }
+function gateUnlock(){
+  var pass = document.getElementById('ginp').value;
+  if(!pass) return toast('Enter your password','err');
+  var cred = firebase.auth.EmailAuthProvider.credential(CU.email, pass);
+  CU.reauthenticateWithCredential(cred)
+    .then(function(){
+      GATE_OK = true;
+      document.getElementById('gate').classList.remove('open');
+      if(PENDING_ITEM){ openViewer(PENDING_ITEM); PENDING_ITEM=null; }
+    })
+    .catch(function(){
+      document.getElementById('ginp').value = '';
+      toast('Wrong password ✗','err');
+    });
+}
 
-document.getElementById('drop-zone').onclick = e => { if (e.target !== document.getElementById('add-btn')) triggerUpload(); };
-document.getElementById('add-btn').onclick   = e => { e.stopPropagation(); triggerUpload(); };
-
-fileInput.addEventListener('change', async e => {
-  const files = Array.from(e.target.files);
-  for (const file of files) await uploadFile(file);
+// ═════════════════════════════════
+// FILE UPLOAD
+// ═════════════════════════════════
+function onFilePick(e){
+  var files = Array.from(e.target.files);
   e.target.value = '';
-});
+  if(!files.length) return;
+  uploadNext(files, 0);
+}
 
-const dz = document.getElementById('drop-zone');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
-dz.addEventListener('dragleave', ()  => dz.classList.remove('drag-over'));
-dz.addEventListener('drop', e => {
-  e.preventDefault(); dz.classList.remove('drag-over');
-  Array.from(e.dataTransfer.files).forEach(uploadFile);
-});
-
-// Convert File → base64 data URL, reporting progress
-function fileToBase64(file, onProgress) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onprogress = e => { if (e.lengthComputable && onProgress) onProgress(Math.round(e.loaded / e.total * 80)); };
-    reader.onload    = () => resolve(reader.result);
-    reader.onerror   = () => reject(new Error('File read failed'));
-    reader.readAsDataURL(file);
+function uploadNext(files, idx){
+  if(idx >= files.length) return;
+  uploadFile(files[idx], function(){
+    uploadNext(files, idx+1);
   });
 }
 
-async function uploadFile(file) {
-  const isImage = file.type.startsWith('image/');
-  const isVideo = file.type.startsWith('video/');
-  if (!isImage && !isVideo) return showMsg('Only images & videos allowed', 'error');
+function uploadFile(file, done){
+  if(!CU){ toast('Not signed in','err'); done && done(); return; }
+  var isImg = file.type.startsWith('image/');
+  var isVid = file.type.startsWith('video/');
+  if(!isImg && !isVid){
+    toast('"'+file.name+'" skipped — images & videos only','err');
+    done && done(); return;
+  }
+  var safeName = Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._\-]/g,'_');
+  var path = 'vault/'+CU.uid+'/'+safeName;
+  var sRef = storage.ref(path);
+  var task = sRef.put(file);
 
-  // Size check — Firestore docs max ~1MB; base64 bloats by ~33%
-  if (file.size > MAX_SIZE) {
-    showMsg(`File too large (max 700 KB). "${file.name}" is ${(file.size/1024).toFixed(0)} KB`, 'error');
+  // Show progress
+  var box = document.getElementById('upbox');
+  var bar = document.getElementById('upbar');
+  var pct = document.getElementById('uppct');
+  var nm  = document.getElementById('upname');
+  box.style.display = 'block';
+  nm.textContent    = file.name;
+  bar.style.width   = '0%';
+  pct.textContent   = '0%';
+
+  task.on('state_changed',
+    function(snap){
+      var p = Math.round(snap.bytesTransferred/snap.totalBytes*100);
+      bar.style.width = p+'%';
+      pct.textContent = p+'%';
+    },
+    function(err){
+      console.error('Upload error:',err);
+      toast('Upload failed: '+err.message,'err');
+      box.style.display='none';
+      done && done();
+    },
+    function(){
+      task.snapshot.ref.getDownloadURL().then(function(url){
+        db.collection('vault').add({
+          uid:       CU.uid,
+          name:      file.name,
+          type:      isImg ? 'image' : 'video',
+          url:       url,
+          path:      path,
+          size:      file.size,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function(){
+          toast('"'+file.name+'" saved ✓','ok');
+          box.style.display='none';
+          loadMedia();
+          done && done();
+        }).catch(function(e2){
+          toast('Metadata save failed: '+e2.message,'err');
+          box.style.display='none';
+          done && done();
+        });
+      }).catch(function(e3){
+        toast('URL fetch failed: '+e3.message,'err');
+        box.style.display='none';
+        done && done();
+      });
+    }
+  );
+}
+
+// Drag & drop
+function dzOver(e){ e.preventDefault(); document.getElementById('dz').classList.add('over'); }
+function dzLeave(){ document.getElementById('dz').classList.remove('over'); }
+function dzDrop(e){
+  e.preventDefault();
+  document.getElementById('dz').classList.remove('over');
+  var files = Array.from(e.dataTransfer.files);
+  if(files.length) uploadNext(files, 0);
+}
+
+// ═════════════════════════════════
+// LOAD MEDIA
+// ═════════════════════════════════
+function loadMedia(){
+  if(!CU) return;
+  document.getElementById('grid').innerHTML = '<div class="loader"><span></span><span></span><span></span></div>';
+
+  db.collection('vault')
+    .where('uid','==',CU.uid)
+    .orderBy('createdAt','desc')
+    .get()
+    .then(function(snap){
+      ALL = [];
+      snap.forEach(function(d){ ALL.push(Object.assign({id:d.id},d.data())); });
+      renderGrid();
+    })
+    .catch(function(e){
+      // Fallback: no orderBy (index may not exist yet)
+      if(e.code==='failed-precondition' || e.message.indexOf('index')>-1){
+        db.collection('vault').where('uid','==',CU.uid).get()
+          .then(function(snap2){
+            ALL = [];
+            snap2.forEach(function(d){ ALL.push(Object.assign({id:d.id},d.data())); });
+            ALL.sort(function(a,b){
+              return ((b.createdAt&&b.createdAt.seconds)||0) - ((a.createdAt&&a.createdAt.seconds)||0);
+            });
+            renderGrid();
+          })
+          .catch(function(e2){ showGridErr(e2.message); });
+      } else {
+        showGridErr(e.message);
+      }
+    });
+}
+
+function showGridErr(msg){
+  document.getElementById('grid').innerHTML =
+    '<div class="empty-state"><div class="ei">⚠️</div><div class="et">Load error</div><div class="es">'+msg+'</div></div>';
+}
+
+function renderGrid(){
+  var grid = document.getElementById('grid');
+  var items = FILTER==='all' ? ALL : ALL.filter(function(i){ return i.type===FILTER; });
+
+  document.getElementById('st0').textContent = ALL.length;
+  document.getElementById('st1').textContent = ALL.filter(function(i){ return i.type==='image'; }).length;
+  document.getElementById('st2').textContent = ALL.filter(function(i){ return i.type==='video'; }).length;
+
+  grid.innerHTML = '';
+
+  if(!items.length){
+    grid.innerHTML = '<div class="empty-state"><div class="ei">🗄️</div><div class="et">Vault is empty</div><div class="es">Upload photos & videos above</div></div>';
     return;
   }
 
-  uploading = true;
-  uploadBar.style.display    = 'block';
-  uploadFileName.textContent = file.name;
-  uploadProgress.style.width = '0%';
-  uploadPct.textContent      = '0%';
+  items.forEach(function(item, idx){
+    var card = document.createElement('div');
+    card.className = 'mc';
+    card.style.animationDelay = Math.min(idx*0.045,0.5)+'s';
 
-  const setProgress = pct => {
-    uploadProgress.style.width = pct + '%';
-    uploadPct.textContent      = pct + '%';
-  };
-
-  try {
-    // 1. Read file as base64
-    const dataURL = await fileToBase64(file, setProgress);
-    setProgress(85);
-
-    // 2. Save to Firestore
-    await addDoc(collection(db, 'vault'), {
-      uid      : currentUser.uid,
-      name     : file.name,
-      type     : isImage ? 'image' : 'video',
-      dataURL,                          // base64 stored directly
-      size     : file.size,
-      createdAt: new Date()
-    });
-
-    setProgress(100);
-    showMsg(`${file.name} saved to vault ✓`, 'success');
-    setTimeout(() => { uploadBar.style.display = 'none'; }, 800);
-    loadMedia();
-  } catch (err) {
-    console.error('Upload error:', err);
-    if (err.code === 'resource-exhausted') {
-      showMsg('File too large for Firestore — please use a smaller file', 'error');
+    if(item.type==='image'){
+      var img = document.createElement('img');
+      img.src = item.url; img.alt = item.name; img.loading='lazy';
+      card.appendChild(img);
     } else {
-      showMsg('Upload failed: ' + err.message, 'error');
-    }
-    uploadBar.style.display = 'none';
-  } finally {
-    uploading = false;
-  }
-}
-
-// ── Load Media ─────────────────────────────────
-async function loadMedia(filter) {
-  if (filter !== undefined) currentFilter = filter;
-  if (!currentUser) return;
-
-  mediaGrid.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
-  emptyState.style.display = 'none';
-
-  try {
-    const q        = query(collection(db, 'vault'), where('uid', '==', currentUser.uid));
-    const snapshot = await getDocs(q);
-    mediaItems = [];
-    snapshot.forEach(d => mediaItems.push({ id: d.id, ...d.data() }));
-
-    // Sort newest first
-    mediaItems.sort((a, b) => {
-      const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : new Date(a.createdAt).getTime();
-      const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : new Date(b.createdAt).getTime();
-      return tb - ta;
-    });
-
-    let filtered = mediaItems;
-    if (currentFilter === 'images') filtered = mediaItems.filter(m => m.type === 'image');
-    if (currentFilter === 'videos') filtered = mediaItems.filter(m => m.type === 'video');
-
-    countBadge.textContent = filtered.length + ' item' + (filtered.length !== 1 ? 's' : '');
-
-    if (!filtered.length) {
-      mediaGrid.innerHTML = '';
-      emptyState.style.display = 'flex';
-      return;
+      var vid = document.createElement('video');
+      vid.src = item.url+'#t=0.001'; vid.muted=true; vid.preload='metadata';
+      card.appendChild(vid);
     }
 
-    emptyState.style.display = 'none';
-    mediaGrid.innerHTML = filtered.map((item, i) => `
-      <div class="media-card" style="animation-delay:${i * 0.05}s" data-id="${item.id}">
-        ${item.type === 'image'
-          ? `<img src="${item.dataURL}" alt="${escHtml(item.name)}" loading="lazy">`
-          : `<video src="${item.dataURL}" muted preload="metadata"></video>`
-        }
-        <div class="card-overlay">
-          <span class="card-type">${item.type === 'video' ? '▶' : '🖼'}</span>
-          <button class="delete-btn" data-id="${item.id}">✕</button>
-        </div>
-        <div class="card-info">${escHtml(item.name.length > 22 ? item.name.substring(0, 22) + '…' : item.name)}</div>
-      </div>
-    `).join('');
+    var badge = document.createElement('div');
+    badge.className='mbadge';
+    badge.textContent = item.type==='video' ? '▶' : '🖼';
+    card.appendChild(badge);
 
-    mediaGrid.querySelectorAll('.media-card').forEach(card => {
-      card.addEventListener('click', () => openViewer(card.dataset.id));
-    });
-    mediaGrid.querySelectorAll('.delete-btn').forEach(btn => {
-      btn.addEventListener('click', e => { e.stopPropagation(); deleteItem(btn.dataset.id); });
-    });
+    var ov = document.createElement('div');
+    ov.className='mov';
 
-  } catch (e) {
-    console.error('Load error:', e);
-    mediaGrid.innerHTML = `<p style="color:var(--red);text-align:center;grid-column:1/-1;padding:40px">
-      Error loading media.<br><small style="font-family:monospace;opacity:.6">${e.message}</small>
-    </p>`;
-  }
-}
+    var del = document.createElement('button');
+    del.className='mdel'; del.title='Delete'; del.textContent='✕';
+    (function(i){ del.onclick=function(e){ e.stopPropagation(); deleteItem(i.id,i.path); }; })(item);
 
-async function deleteItem(id) {
-  if (!confirm('Delete this from vault forever?')) return;
-  try {
-    await deleteDoc(doc(db, 'vault', id));
-    showMsg('Deleted from vault', 'success');
-    loadMedia();
-  } catch (e) { showMsg('Delete failed: ' + e.message, 'error'); }
-}
+    var nm = document.createElement('div');
+    nm.className='mname'; nm.textContent=item.name;
 
-// ── Filter tabs ────────────────────────────────
-document.querySelectorAll('.filter-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    loadMedia(tab.dataset.filter);
+    ov.appendChild(del); ov.appendChild(nm);
+    card.appendChild(ov);
+
+    (function(i){ card.onclick=function(){ gateOpen(i); }; })(item);
+
+    grid.appendChild(card);
   });
+}
+
+// ── Filter ────────────────────────────────────
+function setFilter(f,btn){
+  FILTER = f;
+  document.querySelectorAll('.ftab').forEach(function(t){ t.classList.remove('on'); });
+  btn.classList.add('on');
+  renderGrid();
+}
+
+// ═════════════════════════════════
+// VIEWER
+// ═════════════════════════════════
+function openViewer(item){
+  var v  = document.getElementById('viewer');
+  var mc = document.getElementById('vmedia');
+  document.getElementById('vname').textContent = item.name;
+  mc.innerHTML = '';
+  if(item.type==='image'){
+    var img = document.createElement('img');
+    img.src=item.url; img.alt=item.name;
+    mc.appendChild(img);
+  } else {
+    var vid = document.createElement('video');
+    vid.src=item.url; vid.controls=true; vid.autoplay=true;
+    mc.appendChild(vid);
+  }
+  v.classList.add('open');
+}
+
+function viewerClose(){
+  document.getElementById('viewer').classList.remove('open');
+  document.getElementById('vmedia').innerHTML='';
+}
+
+document.getElementById('viewer').addEventListener('click',function(e){
+  if(e.target===this) viewerClose();
 });
 
-// ── Viewer ─────────────────────────────────────
-function openViewer(id) {
-  const item = mediaItems.find(m => m.id === id);
-  if (!item) return;
-  viewerTitle.textContent = item.name;
-  viewerContent.innerHTML = item.type === 'image'
-    ? `<img src="${item.dataURL}" alt="${escHtml(item.name)}">`
-    : `<video src="${item.dataURL}" controls autoplay></video>`;
-  viewer.style.display = 'flex';
-  setTimeout(() => viewer.classList.add('open'), 10);
+// ═════════════════════════════════
+// DELETE
+// ═════════════════════════════════
+function deleteItem(id, path){
+  if(!confirm('Permanently delete this file?')) return;
+  db.collection('vault').doc(id).delete()
+    .then(function(){
+      if(path){ storage.ref(path).delete().catch(function(){}); }
+      toast('Deleted ✓','ok');
+      loadMedia();
+    })
+    .catch(function(e){ toast('Delete failed: '+e.message,'err'); });
 }
 
-function closeViewer() {
-  viewer.classList.remove('open');
-  setTimeout(() => { viewer.style.display = 'none'; viewerContent.innerHTML = ''; }, 300);
+// ═════════════════════════════════
+// TOAST & KEYBOARD
+// ═════════════════════════════════
+function toast(msg, type){
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show '+(type||'inf');
+  clearTimeout(window._tt);
+  window._tt = setTimeout(function(){ el.className=''; }, 3500);
 }
 
-document.getElementById('viewer-close-btn').onclick = closeViewer;
-viewer.addEventListener('click', e => { if (e.target === viewer) closeViewer(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeViewer(); });
-
-// ── Auto-lock ──────────────────────────────────
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden && currentUser && !sessionLocked) showLock();
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){ viewerClose(); gateClose(); }
 });
-
-// ── Auth state ─────────────────────────────────
-onAuthStateChanged(auth, user => {
-  currentUser = user;
-  if (user) { showVault(); loadMedia(); }
-  else       { showAuth('login'); }
-});
-
-// ── Helpers ────────────────────────────────────
-function showMsg(msg, type) {
-  toast.textContent = msg;
-  toast.className   = 'toast show ' + type;
-  setTimeout(() => { toast.className = 'toast'; }, 3500);
-}
-
-function getFriendlyError(code) {
-  const map = {
-    'auth/user-not-found'      : 'No account found with this email',
-    'auth/wrong-password'      : 'Incorrect password',
-    'auth/email-already-in-use': 'Email already registered',
-    'auth/weak-password'       : 'Password too weak (min 6 chars)',
-    'auth/invalid-email'       : 'Invalid email address',
-    'auth/too-many-requests'   : 'Too many attempts. Try later.',
-    'auth/network-request-failed': 'Network error. Check connection.',
-    'auth/invalid-credential'  : 'Invalid email or password',
-  };
-  return map[code] || 'Something went wrong. Try again.';
-}
-
-function escHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// Init
-showAuth('login');
 </script>
+
+<!-- ══════════════════════════════════
+     SETUP GUIDE (shown if config not filled)
+══════════════════════════════════ -->
+<script>
+window.addEventListener('load', function(){
+  if(FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY') return;
+  document.body.insertAdjacentHTML('beforeend',
+    '<div id="guide" style="position:fixed;inset:0;background:rgba(8,8,16,.98);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px;font-family:Space Mono,monospace">'+
+    '<div style="background:#10101c;border:1px solid #303048;border-radius:20px;padding:32px;max-width:560px;width:100%;box-shadow:0 40px 80px rgba(0,0,0,.8);overflow-y:auto;max-height:90vh">'+
+    '<div style="font-size:34px;text-align:center;margin-bottom:14px">🔥</div>'+
+    '<h2 style="font-family:Syne,sans-serif;font-size:18px;font-weight:800;color:#c8ff00;letter-spacing:3px;text-align:center;margin-bottom:18px">FIREBASE SETUP REQUIRED</h2>'+
+    '<div style="color:#888;font-size:11px;line-height:2">'+
+    '<b style="color:#eee">STEP 1</b> — <a href="https://console.firebase.google.com" target="_blank" style="color:#c8ff00">console.firebase.google.com</a> → Add Project<br>'+
+    '<b style="color:#eee">STEP 2</b> — Authentication → Get Started → Email/Password → Enable<br>'+
+    '<b style="color:#eee">STEP 3</b> — Firestore Database → Create Database → Test Mode<br>'+
+    '<b style="color:#eee">STEP 4</b> — Storage → Get Started → Test Mode<br>'+
+    '<b style="color:#eee">STEP 5</b> — Project Settings ⚙ → Web App &lt;/&gt; → Register app → Copy config<br>'+
+    '<b style="color:#eee">STEP 6</b> — Open this HTML file in a text editor → Find <code style="color:#c8ff00">var FIREBASE_CONFIG</code> → Replace all placeholder values → Save<br><br>'+
+    '<b style="color:#eee">Firestore Rules</b> (Firestore → Rules tab → Publish):<br>'+
+    '<code style="color:#c8ff00;font-size:10px;line-height:1.7;display:block;background:#0a0a14;padding:10px;border-radius:8px;margin:6px 0">'+
+    "rules_version = '2';<br>service cloud.firestore {<br>&nbsp;match /databases/{db}/documents {<br>&nbsp;&nbsp;match /vault/{doc} {<br>&nbsp;&nbsp;&nbsp;allow read, write: if request.auth != null;<br>&nbsp;&nbsp;}<br>&nbsp;}<br>}"+
+    '</code>'+
+    '<b style="color:#eee">Storage Rules</b> (Storage → Rules tab → Publish):<br>'+
+    '<code style="color:#c8ff00;font-size:10px;line-height:1.7;display:block;background:#0a0a14;padding:10px;border-radius:8px;margin:6px 0">'+
+    "rules_version = '2';<br>service firebase.storage {<br>&nbsp;match /b/{bucket}/o {<br>&nbsp;&nbsp;match /{allPaths=**} {<br>&nbsp;&nbsp;&nbsp;allow read, write: if request.auth != null;<br>&nbsp;&nbsp;}<br>&nbsp;}<br>}"+
+    '</code>'+
+    '</div>'+
+    '<button onclick="document.getElementById(\'guide\').remove()" style="width:100%;margin-top:18px;padding:13px;background:#c8ff00;color:#080810;border:none;border-radius:10px;font-family:Syne,sans-serif;font-size:13px;font-weight:800;letter-spacing:2px;cursor:pointer">I\'VE SET IT UP — CLOSE</button>'+
+    '</div></div>'
+  );
+});
+</script>
+
 </body>
 </html>
